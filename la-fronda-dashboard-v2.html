@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>La Fronda — Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0c0c0b;
+  --s1: #161614;
+  --s2: #1e1e1b;
+  --s3: #252521;
+  --bd: rgba(255,255,255,0.06);
+  --gold: #c8a45a;
+  --gold2: #e8cc8a;
+  --goldx: rgba(200,164,90,0.12);
+  --green: #6abf8a;
+  --red: #cf6e6e;
+  --blue: #6a9ecf;
+  --purple: #9b7ed4;
+  --orange: #cf9a5a;
+  --tx: #ede8df;
+  --tm: #8a857a;
+  --td: #4a4842;
+  --r: 10px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--tx);font-family:'Outfit',sans-serif;font-size:13px;min-height:100vh}
+
+/* NAV */
+nav{display:flex;align-items:stretch;border-bottom:1px solid var(--bd);background:var(--s1);position:sticky;top:0;z-index:100}
+.nav-brand{padding:16px 28px;border-right:1px solid var(--bd);display:flex;flex-direction:column;justify-content:center}
+.nav-brand h1{font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--gold2);letter-spacing:.04em}
+.nav-brand p{font-size:10px;color:var(--td);letter-spacing:.1em;text-transform:uppercase;margin-top:1px}
+.nav-tabs{display:flex;align-items:center;padding:0 12px;gap:2px;flex:1}
+.tab{padding:8px 16px;border-radius:6px;border:none;background:none;color:var(--tm);font-family:'Outfit',sans-serif;font-size:12px;cursor:pointer;transition:all .2s;letter-spacing:.03em;white-space:nowrap}
+.tab:hover{color:var(--tx);background:var(--s3)}
+.tab.on{background:var(--goldx);color:var(--gold2);border:1px solid rgba(200,164,90,.25)}
+.nav-year{display:flex;align-items:center;padding:0 20px;gap:6px;border-left:1px solid var(--bd)}
+.nav-year span{font-size:10px;color:var(--td);text-transform:uppercase;letter-spacing:.08em;margin-right:4px}
+.yr{padding:4px 11px;border-radius:4px;border:1px solid var(--bd);background:none;color:var(--tm);font-size:11px;cursor:pointer;font-family:'Outfit',sans-serif;transition:all .15s}
+.yr:hover{border-color:var(--gold);color:var(--gold)}
+.yr.on{background:var(--gold);border-color:var(--gold);color:#0c0c0b;font-weight:600}
+
+/* MAIN */
+main{padding:20px 28px 48px}
+.pg{display:none}.pg.on{display:block}
+
+/* KPI STRIP */
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px}
+.kpi{background:var(--s2);border:1px solid var(--bd);border-radius:var(--r);padding:18px 16px;position:relative;overflow:hidden}
+.kpi::after{content:'';position:absolute;top:0;left:0;right:0;height:1.5px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.5}
+.kpi-l{font-size:9.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--td);margin-bottom:8px}
+.kpi-v{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:600;color:var(--tx);line-height:1}
+.kpi-sub{font-size:10px;color:var(--tm);margin-top:5px}
+.delta{display:inline-flex;align-items:center;gap:2px;font-size:10px;font-weight:500;padding:2px 7px;border-radius:20px;margin-top:5px}
+.up{background:rgba(106,191,138,.1);color:var(--green)}
+.dn{background:rgba(207,110,110,.1);color:var(--red)}
+
+/* GRID LAYOUTS */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px}
+.g13{display:grid;grid-template-columns:1fr 2.2fr;gap:14px;margin-bottom:14px}
+.g31{display:grid;grid-template-columns:2.2fr 1fr;gap:14px;margin-bottom:14px}
+.full{margin-bottom:14px}
+
+/* CARD */
+.card{background:var(--s2);border:1px solid var(--bd);border-radius:var(--r);padding:18px}
+.ct{font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:600;color:var(--tx);margin-bottom:2px}
+.cs{font-size:10px;color:var(--td);letter-spacing:.05em;margin-bottom:14px}
+
+/* INSIGHT */
+.insight{background:var(--goldx);border:1px solid rgba(200,164,90,.2);border-left:3px solid var(--gold);border-radius:var(--r);padding:13px 16px;margin-bottom:18px}
+.insight h4{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--gold);margin-bottom:5px}
+.insight p{font-size:12px;color:var(--tm);line-height:1.65}
+.insight strong{color:var(--tx)}
+
+/* ALERT */
+.alert{display:flex;gap:11px;padding:11px 14px;border-radius:8px;margin-bottom:8px}
+.alert.w{background:rgba(207,110,110,.07);border:1px solid rgba(207,110,110,.18)}
+.alert.g{background:rgba(106,191,138,.07);border:1px solid rgba(106,191,138,.18)}
+.alert.i{background:var(--goldx);border:1px solid rgba(200,164,90,.2)}
+.alert-ico{font-size:15px;flex-shrink:0;margin-top:1px}
+.alert h5{font-size:12px;font-weight:600;margin-bottom:2px}
+.alert p{font-size:11px;color:var(--tm);line-height:1.5}
+.alert.w h5{color:var(--red)}.alert.g h5{color:var(--green)}.alert.i h5{color:var(--gold)}
+
+/* TABLE */
+table{width:100%;border-collapse:collapse;font-size:11.5px}
+th{text-align:left;padding:7px 10px;color:var(--td);font-size:9.5px;text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid var(--bd);font-weight:500}
+td{padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.03);color:var(--tm)}
+tr:hover td{background:rgba(255,255,255,.02);color:var(--tx)}
+td.r{text-align:right;font-variant-numeric:tabular-nums}
+td.hl{color:var(--gold2);font-weight:500}
+.badge{display:inline-block;padding:2px 7px;border-radius:20px;font-size:9.5px;font-weight:600}
+.bg{background:rgba(106,191,138,.1);color:var(--green)}
+.br{background:rgba(207,110,110,.1);color:var(--red)}
+.ba{background:var(--goldx);color:var(--gold)}
+
+/* LEGEND */
+.leg{display:flex;flex-direction:column;gap:7px;margin-top:12px}
+.leg-i{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--tm)}
+.leg-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.leg-v{margin-left:auto;color:var(--tx);font-weight:500}
+
+/* SCRIPT */
+.code{background:#080808;border:1px solid var(--bd);border-radius:var(--r);padding:18px;font-family:'Courier New',monospace;font-size:10.5px;color:#8fbf8f;line-height:1.75;overflow-x:auto;white-space:pre}
+
+/* STEPS */
+.steps{list-style:none;counter-reset:s}
+.steps li{counter-increment:s;display:flex;gap:14px;margin-bottom:18px;align-items:flex-start}
+.steps li::before{content:counter(s);background:var(--goldx);border:1px solid var(--gold);color:var(--gold);width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px}
+.steps li h4{font-size:13px;color:var(--tx);margin-bottom:3px}
+.steps li p{font-size:11.5px;color:var(--tm);line-height:1.6}
+code{background:var(--s3);color:var(--gold2);padding:1px 5px;border-radius:3px;font-size:10.5px}
+
+/* PAISES FLAG */
+.flag-name{display:flex;align-items:center;gap:6px}
+.country-bar{height:6px;border-radius:3px;background:var(--gold);opacity:.7}
+
+@media(max-width:900px){
+  nav{flex-direction:column}
+  .nav-year{padding:10px 16px;border-left:none;border-top:1px solid var(--bd)}
+  .kpis{grid-template-columns:1fr 1fr}
+  .g2,.g3,.g13,.g31{grid-template-columns:1fr}
+  main{padding:12px 14px 40px}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">
+    <h1>La Fronda</h1>
+    <p>Dashboard · Datos reales Redforts</p>
+  </div>
+  <div class="nav-tabs">
+    <button class="tab on" onclick="showPage('resumen',this)">Resumen</button>
+    <button class="tab" onclick="showPage('evolucion',this)">Evolución</button>
+    <button class="tab" onclick="showPage('ingresos',this)">Ingresos</button>
+    <button class="tab" onclick="showPage('canales',this)">Canales</button>
+    <button class="tab" onclick="showPage('clientes',this)">Clientes</button>
+    <button class="tab" onclick="showPage('auto',this)">Automatización</button>
+  </div>
+  <div class="nav-year">
+    <span>Año</span>
+    <button class="yr" onclick="setYear(2019,this)">2019</button>
+    <button class="yr" onclick="setYear(2021,this)">2021</button>
+    <button class="yr" onclick="setYear(2022,this)">2022</button>
+    <button class="yr" onclick="setYear(2023,this)">2023</button>
+    <button class="yr on" onclick="setYear(2024,this)">2024</button>
+    <button class="yr" onclick="setYear(2025,this)">2025</button>
+  </div>
+</nav>
+
+<main>
+
+<!-- ========== RESUMEN ========== -->
+<div id="pg-resumen" class="pg on">
+  <div class="kpis">
+    <div class="kpi"><div class="kpi-l">Ingresos totales</div><div class="kpi-v" id="k-total">—</div><div class="kpi-sub">aloj + F&B + otros</div><div class="delta" id="k-total-d"></div></div>
+    <div class="kpi"><div class="kpi-l">Solo alojamiento</div><div class="kpi-v" id="k-aloj">—</div><div class="kpi-sub">estancias facturadas</div><div class="delta" id="k-aloj-d"></div></div>
+    <div class="kpi"><div class="kpi-l">F&B + Eventos</div><div class="kpi-v" id="k-fnb">—</div><div class="kpi-sub">cenas, copas, bodas…</div><div class="delta" id="k-fnb-d"></div></div>
+    <div class="kpi"><div class="kpi-l">ADR medio</div><div class="kpi-v" id="k-adr">—</div><div class="kpi-sub">€/noche vendida (aloj.)</div><div class="delta" id="k-adr-d"></div></div>
+    <div class="kpi"><div class="kpi-l">Noches vendidas</div><div class="kpi-v" id="k-noches">—</div><div class="kpi-sub" id="k-res-sub">reservas confirmadas</div><div class="delta" id="k-noches-d"></div></div>
+  </div>
+
+  <div id="insight-r" class="insight"></div>
+
+  <div class="g2">
+    <div class="card"><div class="ct">Ingresos mensuales</div><div class="cs" id="cs-ing">Alojamiento · F&B · año seleccionado vs anterior</div><canvas id="c-ing-mes" height="220"></canvas></div>
+    <div class="card"><div class="ct">Ocupación mensual</div><div class="cs">% noches vendidas sobre disponibles (9 hab.)</div><canvas id="c-occ-mes" height="220"></canvas></div>
+  </div>
+  <div class="g2">
+    <div class="card"><div class="ct">Estacionalidad histórica</div><div class="cs">Ocupación promedio por mes 2019–2025 (excl. 2020)</div><canvas id="c-estac" height="200"></canvas></div>
+    <div class="card"><div class="ct">ADR mensual</div><div class="cs">Tarifa media de alojamiento por noche vendida</div><canvas id="c-adr-mes" height="200"></canvas></div>
+  </div>
+</div>
+
+<!-- ========== EVOLUCIÓN ========== -->
+<div id="pg-evolucion" class="pg">
+  <div class="full card"><div class="ct">Ingresos anuales 2018–2025</div><div class="cs">Alojamiento + F&B + Otros — datos reales de facturas</div><canvas id="c-anual-ing" height="170"></canvas></div>
+  <div class="g3">
+    <div class="card"><div class="ct">Ocupación anual</div><div class="cs">% sobre 9 hab. × días del año</div><canvas id="c-anual-occ" height="200"></canvas></div>
+    <div class="card"><div class="ct">ADR anual</div><div class="cs">€ por noche de alojamiento vendida</div><canvas id="c-anual-adr" height="200"></canvas></div>
+    <div class="card"><div class="ct">Noches vendidas</div><div class="cs">Total pernoctaciones registradas</div><canvas id="c-anual-noc" height="200"></canvas></div>
+  </div>
+  <div class="card full"><div class="ct">Tabla histórica completa</div><div class="cs">KPIs anuales 2018–2025 · fuente: reservas + facturas Redforts</div><table id="tbl-hist"></table></div>
+</div>
+
+<!-- ========== INGRESOS ========== -->
+<div id="pg-ingresos" class="pg">
+  <div class="g2">
+    <div class="card"><div class="ct">Desglose de ingresos</div><div class="cs" id="cs-desglose">Año seleccionado · por categoría de facturación</div><canvas id="c-desglose-donut" height="240"></canvas><div class="leg" id="leg-desglose"></div></div>
+    <div class="card"><div class="ct">Evolución F&B vs Alojamiento</div><div class="cs">Composición del ingreso total por año</div><canvas id="c-fnb-evol" height="300"></canvas></div>
+  </div>
+  <div class="g2">
+    <div class="card"><div class="ct">Top artículos facturados</div><div class="cs">Ingresos acumulados 2019–2025 por concepto</div><canvas id="c-top-art" height="280"></canvas></div>
+    <div class="card"><div class="ct">Ingresos mensuales — Aloj. vs F&B</div><div class="cs">Año seleccionado · apilado por categoría</div><canvas id="c-mes-stack" height="280"></canvas></div>
+  </div>
+</div>
+
+<!-- ========== CANALES ========== -->
+<div id="pg-canales" class="pg">
+  <div class="g13">
+    <div class="card"><div class="ct">Mix de canales</div><div class="cs" id="cs-canal">Distribución de noches — año seleccionado</div><div style="max-width:240px;margin:0 auto"><canvas id="c-canal-donut" height="220"></canvas></div><div class="leg" id="leg-canal"></div></div>
+    <div class="card"><div class="ct">Evolución canales 2018–2025</div><div class="cs">Noches vendidas por canal y año (apilado)</div><canvas id="c-canal-evol" height="310"></canvas></div>
+  </div>
+  <div class="g2">
+    <div class="card"><div class="ct">Estancia media por canal</div><div class="cs">Promedio de noches por reserva 2019–2025</div><canvas id="c-canal-estancia" height="230"></canvas></div>
+    <div class="card"><div class="ct">Ingresos por canal · año seleccionado</div><div class="cs">Total facturado por origen de reserva</div><canvas id="c-canal-ing" height="230"></canvas></div>
+  </div>
+</div>
+
+<!-- ========== CLIENTES ========== -->
+<div id="pg-clientes" class="pg">
+  <div class="g2">
+    <div class="card"><div class="ct">Origen de clientes</div><div class="cs" id="cs-pais">Noches por país — año seleccionado</div><canvas id="c-pais-bar" height="280"></canvas></div>
+    <div class="card"><div class="ct">Evolución por países 2018–2025</div><div class="cs">Top 5 países · noches anuales</div><canvas id="c-pais-evol" height="280"></canvas></div>
+  </div>
+  <div class="g2">
+    <div class="card"><div class="ct">Distribución de estancias</div><div class="cs">Número de reservas por duración — año seleccionado</div><canvas id="c-estancia-dist" height="240"></canvas></div>
+    <div class="card"><div class="ct">Perfil de reserva anual</div><div class="cs">Estancia media · adultos · % con niños</div><canvas id="c-perfil" height="240"></canvas></div>
+  </div>
+</div>
+
+<!-- ========== AUTOMATIZACIÓN ========== -->
+<div id="pg-auto" class="pg">
+  <div class="insight">
+    <h4>🎯 Estado del pipeline de datos</h4>
+    <p>El dashboard ya usa las fuentes correctas: <strong>Reservas_Asignadas</strong> (3.592 reservas, 2018–2026) y <strong>Facturas_Detallado</strong> (20.954 líneas, 2016–2026). Para mantenerlo actualizado solo necesitas descargar estos dos CSVs de Redforts periódicamente y procesarlos con el script de abajo.</p>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="ct">Instrucciones paso a paso</div><div class="cs">Configuración única · ~20 minutos</div><br>
+      <ol class="steps">
+        <li><div><h4>Exporta desde Redforts</h4><p>En Redforts: <strong>Reservas → Exportar CSV</strong> y <strong>Facturas → Exportar detallado</strong>. Selecciona el rango de fechas que quieras (recomendado: siempre exportar todo el histórico).</p></div></li>
+        <li><div><h4>Abre Apps Script en tu Sheet</h4><p>En tu Google Sheet: <strong>Extensiones → Apps Script</strong>. Borra el contenido y pega el código de abajo.</p></div></li>
+        <li><div><h4>Sube los CSV a Google Drive</h4><p>Crea una carpeta llamada <code>Redforts_Data</code> en tu Drive. Sube los dos archivos descargados de Redforts.</p></div></li>
+        <li><div><h4>Ejecuta el script</h4><p>Pulsa ▶ Run o usa el nuevo menú <code>🏨 La Fronda</code> que aparecerá en tu Sheet. El script crea automáticamente las hojas <code>RESERVAS</code> y <code>FACTURAS</code>.</p></div></li>
+        <li><div><h4>Refresca cuando quieras</h4><p>Cada vez que descargues datos nuevos de Redforts, súbelos a la misma carpeta y ejecuta el script. Solo añade filas nuevas, nunca duplica.</p></div></li>
+      </ol>
+    </div>
+    <div class="card">
+      <div class="ct">Alertas automáticas detectadas</div><div class="cs">Basadas en datos reales 2018–2025</div><br>
+      <div class="alert i"><div class="alert-ico">📈</div><div><h5>2024: Mejor año histórico (262.930€)</h5><p>El ingreso total incluyendo F&B alcanza el máximo histórico. El ADR de alojamiento sube a <strong>133€</strong>, recuperando niveles de 2019–2020.</p></div></div>
+      <div class="alert g"><div class="alert-ico">🎵</div><div><h5>"Cenando Canciones" es el 2º producto más rentable</h5><p>99.292€ acumulados 2019–2025, solo detrás de la estancia. Un activo diferencial clave para La Fronda que merece potenciarse.</p></div></div>
+      <div class="alert g"><div class="alert-ico">✅</div><div><h5>Canal directo domina (68–76% noches)</h5><p>Excelente salud de reservas directas. En 2025 Airbnb creció hasta 70 noches vs 33 en 2022 — una diversificación interesante.</p></div></div>
+      <div class="alert w"><div class="alert-ico">⚠️</div><div><h5>Ocupación real: 30–39% (no 58–65%)</h5><p>Los datos anteriores sobreestimaban la ocupación. Con 9 habitaciones y fechas reales, la ocupación oscila entre <strong>29.6% (2018)</strong> y <strong>38.9% (2024)</strong>.</p></div></div>
+      <div class="alert i"><div class="alert-ico">💡</div><div><h5>Bodas: alto impacto, baja frecuencia</h5><p>Solo 11 líneas de "Boda - Banquete" suman 32.000€. Cada boda equivale a semanas de ocupación normal. Medir y potenciar este canal.</p></div></div>
+      <div class="alert w"><div class="alert-ico">📉</div><div><h5>Pura Aventura cayó de 49 noches (2019) a 7 (2025)</h5><p>Este touroperador especializado ha reducido drásticamente el volumen. Vale la pena revisar la relación y si hay otras agencias similares.</p></div></div>
+    </div>
+  </div>
+  <div class="card full">
+    <div class="ct">Script Google Apps Script — Importador Redforts → Google Sheets</div>
+    <div class="cs">Pega en Extensiones → Apps Script · funciona con los dos CSVs de Redforts</div><br>
+    <div class="code">// ============================================================
+// LA FRONDA — Importador Redforts CSV → Google Sheets
+// ============================================================
+const FOLDER_NAME = 'Redforts_Data';   // Nombre de tu carpeta en Drive
+const SHEET_RES   = 'RESERVAS';
+const SHEET_FAC   = 'FACTURAS';
+
+function onOpen() {
+  SpreadsheetApp.getUi()
+    .createMenu('🏨 La Fronda')
+    .addItem('📥 Importar datos de Redforts', 'importarTodo')
+    .addItem('📊 Ver resumen de datos', 'resumenDatos')
+    .addToUi();
+}
+
+function importarTodo() {
+  const folders = DriveApp.getFoldersByName(FOLDER_NAME);
+  if (!folders.hasNext()) {
+    SpreadsheetApp.getUi().alert('❌ No encontré la carpeta "' + FOLDER_NAME + '" en tu Drive.\nCréala y sube los CSV de Redforts.');
+    return;
+  }
+  const folder = folders.next();
+  const files = folder.getFiles();
+  let importados = 0;
+
+  while (files.hasNext()) {
+    const file = files.next();
+    const name = file.getName().toLowerCase();
+    if (name.includes('reservas') || name.includes('reserva')) {
+      importarCSV(file, SHEET_RES);
+      importados++;
+    } else if (name.includes('factura') || name.includes('facturas')) {
+      importarCSV(file, SHEET_FAC);
+      importados++;
+    }
+  }
+
+  if (importados === 0) {
+    SpreadsheetApp.getUi().alert('⚠️ No encontré archivos de reservas o facturas en la carpeta.\nAsegúrate que los nombres incluyan "reservas" o "facturas".');
+  } else {
+    SpreadsheetApp.getUi().alert('✅ ' + importados + ' archivo(s) importado(s) correctamente.');
+  }
+}
+
+function importarCSV(file, sheetName) {
+  const ss    = SpreadsheetApp.getActiveSpreadsheet();
+  let sheet   = ss.getSheetByName(sheetName);
+  if (!sheet) sheet = ss.insertSheet(sheetName);
+
+  const content = file.getBlob().getDataAsString('UTF-8');
+  const rows    = Utilities.parseCsv(content, ';');
+  if (rows.length < 2) return;
+
+  // Construir set de claves existentes para evitar duplicados
+  const existing = sheet.getLastRow() > 0 ? sheet.getDataRange().getValues() : [];
+  const existingKeys = new Set(existing.slice(1).map(r => r[0] + '|' + r[1]));
+
+  // Si la hoja está vacía, añadir cabecera
+  if (sheet.getLastRow() === 0) {
+    sheet.appendRow(rows[0]);
+  }
+
+  let added = 0;
+  for (let i = 1; i < rows.length; i++) {
+    const key = rows[i][0] + '|' + rows[i][1];
+    if (!existingKeys.has(key)) {
+      sheet.appendRow(rows[i]);
+      existingKeys.add(key);
+      added++;
+    }
+  }
+  Logger.log(sheetName + ': ' + added + ' filas nuevas añadidas.');
+}
+
+function resumenDatos() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheetR = ss.getSheetByName(SHEET_RES);
+  const sheetF = ss.getSheetByName(SHEET_FAC);
+  const nRes = sheetR ? sheetR.getLastRow() - 1 : 0;
+  const nFac = sheetF ? sheetF.getLastRow() - 1 : 0;
+  SpreadsheetApp.getUi().alert(
+    '📊 Resumen de datos en tu Sheet:\n\n' +
+    '• Reservas: ' + nRes + ' registros\n' +
+    '• Líneas de factura: ' + nFac + ' registros\n\n' +
+    'Para actualizar, descarga los CSV de Redforts,\nsúbelos a la carpeta "' + FOLDER_NAME + '" y ejecuta de nuevo.'
+  );
+}</div>
+  </div>
+</div>
+
+</main>
+
+<script>
+// ============================================================
+// DATOS REALES — FUENTE: RESERVAS + FACTURAS REDFORTS
+// ============================================================
+const D = {"kpi_anual":[{"anio":2018,"noches":971,"reservas":448,"ing_aloj":131993,"ing_fnb":46403,"ing_otros":20083,"descuentos":-7047,"ing_total":191432,"adr":135.93,"occ":29.6,"revpar":40.18,"estancia_media":2.2},{"anio":2019,"noches":1046,"reservas":486,"ing_aloj":143776,"ing_fnb":53792,"ing_otros":16454,"descuentos":-7785,"ing_total":206237,"adr":137.45,"occ":31.8,"revpar":43.77,"estancia_media":2.2},{"anio":2020,"noches":659,"reservas":282,"ing_aloj":93371,"ing_fnb":34465,"ing_otros":9129,"descuentos":-5651,"ing_total":131315,"adr":141.69,"occ":20.0,"revpar":28.35,"estancia_media":2.3},{"anio":2021,"noches":986,"reservas":397,"ing_aloj":132528,"ing_fnb":42378,"ing_otros":11937,"descuentos":-14844,"ing_total":171999,"adr":134.41,"occ":30.0,"revpar":40.34,"estancia_media":2.5},{"anio":2022,"noches":1108,"reservas":405,"ing_aloj":133262,"ing_fnb":54190,"ing_otros":12670,"descuentos":-4436,"ing_total":195686,"adr":120.27,"occ":33.7,"revpar":40.57,"estancia_media":2.7},{"anio":2023,"noches":1225,"reservas":509,"ing_aloj":150454,"ing_fnb":66673,"ing_otros":13143,"descuentos":-2773,"ing_total":227497,"adr":122.82,"occ":37.3,"revpar":45.8,"estancia_media":2.4},{"anio":2024,"noches":1283,"reservas":531,"ing_aloj":170624,"ing_fnb":76048,"ing_otros":18882,"descuentos":-2624,"ing_total":262930,"adr":132.99,"occ":38.9,"revpar":51.8,"estancia_media":2.4},{"anio":2025,"noches":1181,"reservas":498,"ing_aloj":158871,"ing_fnb":68154,"ing_otros":12099,"descuentos":-1316,"ing_total":237808,"adr":134.52,"occ":36.0,"revpar":48.36,"estancia_media":2.4}],"kpi_mensual":[{"anio":2018,"mes":1,"mes_nombre":"Ene","noches":0,"reservas":0,"ing_aloj":4200,"ing_fnb":1108,"ing_total":5472,"occ":0,"adr":0},{"anio":2018,"mes":2,"mes_nombre":"Feb","noches":41,"reservas":25,"ing_aloj":6259,"ing_fnb":2542,"ing_total":9177,"occ":16.3,"adr":152.7},{"anio":2018,"mes":3,"mes_nombre":"Mar","noches":81,"reservas":35,"ing_aloj":11071,"ing_fnb":3721,"ing_total":16945,"occ":29.0,"adr":136.7},{"anio":2018,"mes":4,"mes_nombre":"Abr","noches":82,"reservas":42,"ing_aloj":9864,"ing_fnb":3462,"ing_total":14189,"occ":30.4,"adr":120.3},{"anio":2018,"mes":5,"mes_nombre":"May","noches":75,"reservas":30,"ing_aloj":9714,"ing_fnb":3429,"ing_total":13452,"occ":26.9,"adr":129.5},{"anio":2018,"mes":6,"mes_nombre":"Jun","noches":83,"reservas":32,"ing_aloj":9578,"ing_fnb":2600,"ing_total":14788,"occ":30.7,"adr":115.4},{"anio":2018,"mes":7,"mes_nombre":"Jul","noches":115,"reservas":46,"ing_aloj":11168,"ing_fnb":3148,"ing_total":14693,"occ":41.2,"adr":97.1},{"anio":2018,"mes":8,"mes_nombre":"Ago","noches":157,"reservas":72,"ing_aloj":21786,"ing_fnb":8527,"ing_total":30514,"occ":56.3,"adr":138.8},{"anio":2018,"mes":9,"mes_nombre":"Sep","noches":104,"reservas":44,"ing_aloj":12363,"ing_fnb":3853,"ing_total":17140,"occ":38.5,"adr":118.9},{"anio":2018,"mes":10,"mes_nombre":"Oct","noches":89,"reservas":48,"ing_aloj":13873,"ing_fnb":6168,"ing_total":23142,"occ":31.9,"adr":155.9},{"anio":2018,"mes":11,"mes_nombre":"Nov","noches":87,"reservas":45,"ing_aloj":10571,"ing_fnb":4441,"ing_total":16542,"occ":32.2,"adr":121.5},{"anio":2018,"mes":12,"mes_nombre":"Dic","noches":57,"reservas":29,"ing_aloj":11545,"ing_fnb":3403,"ing_total":15377,"occ":20.4,"adr":202.5},{"anio":2019,"mes":1,"mes_nombre":"Ene","noches":35,"reservas":22,"ing_aloj":9810,"ing_fnb":4676,"ing_total":15350,"occ":12.5,"adr":280.3},{"anio":2019,"mes":2,"mes_nombre":"Feb","noches":55,"reservas":38,"ing_aloj":5896,"ing_fnb":2101,"ing_total":8324,"occ":21.8,"adr":107.2},{"anio":2019,"mes":3,"mes_nombre":"Mar","noches":35,"reservas":22,"ing_aloj":8309,"ing_fnb":2198,"ing_total":11278,"occ":12.5,"adr":237.4},{"anio":2019,"mes":4,"mes_nombre":"Abr","noches":100,"reservas":49,"ing_aloj":11757,"ing_fnb":3853,"ing_total":16388,"occ":37.0,"adr":117.6},{"anio":2019,"mes":5,"mes_nombre":"May","noches":124,"reservas":59,"ing_aloj":12316,"ing_fnb":4489,"ing_total":17941,"occ":44.4,"adr":99.3},{"anio":2019,"mes":6,"mes_nombre":"Jun","noches":83,"reservas":32,"ing_aloj":13256,"ing_fnb":4632,"ing_total":18806,"occ":30.7,"adr":159.7},{"anio":2019,"mes":7,"mes_nombre":"Jul","noches":117,"reservas":48,"ing_aloj":10119,"ing_fnb":2360,"ing_total":12687,"occ":41.9,"adr":86.5},{"anio":2019,"mes":8,"mes_nombre":"Ago","noches":145,"reservas":57,"ing_aloj":22626,"ing_fnb":5875,"ing_total":30308,"occ":52.0,"adr":156.0},{"anio":2019,"mes":9,"mes_nombre":"Sep","noches":130,"reservas":47,"ing_aloj":16022,"ing_fnb":4970,"ing_total":21792,"occ":48.1,"adr":123.2},{"anio":2019,"mes":10,"mes_nombre":"Oct","noches":100,"reservas":46,"ing_aloj":16663,"ing_fnb":13462,"ing_total":30204,"occ":35.8,"adr":166.6},{"anio":2019,"mes":11,"mes_nombre":"Nov","noches":61,"reservas":33,"ing_aloj":8800,"ing_fnb":3072,"ing_total":12361,"occ":22.6,"adr":144.3},{"anio":2019,"mes":12,"mes_nombre":"Dic","noches":61,"reservas":33,"ing_aloj":8198,"ing_fnb":2104,"ing_total":10798,"occ":21.9,"adr":134.4},{"anio":2020,"mes":1,"mes_nombre":"Ene","noches":35,"reservas":25,"ing_aloj":6125,"ing_fnb":3270,"ing_total":9503,"occ":12.5,"adr":175.0},{"anio":2020,"mes":2,"mes_nombre":"Feb","noches":42,"reservas":26,"ing_aloj":6775,"ing_fnb":2529,"ing_total":9383,"occ":16.1,"adr":161.3},{"anio":2020,"mes":3,"mes_nombre":"Mar","noches":32,"reservas":16,"ing_aloj":5377,"ing_fnb":2148,"ing_total":7666,"occ":11.5,"adr":168.0},{"anio":2020,"mes":4,"mes_nombre":"Abr","noches":6,"reservas":3,"ing_aloj":198,"ing_fnb":110,"ing_total":271,"occ":2.2,"adr":33.0},{"anio":2020,"mes":5,"mes_nombre":"May","noches":23,"reservas":11,"ing_aloj":3245,"ing_fnb":1697,"ing_total":5029,"occ":8.2,"adr":141.1},{"anio":2020,"mes":6,"mes_nombre":"Jun","noches":48,"reservas":29,"ing_aloj":4558,"ing_fnb":1681,"ing_total":6682,"occ":17.8,"adr":95.0},{"anio":2020,"mes":7,"mes_nombre":"Jul","noches":115,"reservas":46,"ing_aloj":13233,"ing_fnb":2966,"ing_total":17344,"occ":41.2,"adr":115.1},{"anio":2020,"mes":8,"mes_nombre":"Ago","noches":156,"reservas":47,"ing_aloj":25521,"ing_fnb":6233,"ing_total":32375,"occ":55.9,"adr":163.6},{"anio":2020,"mes":9,"mes_nombre":"Sep","noches":82,"reservas":30,"ing_aloj":7840,"ing_fnb":2273,"ing_total":10760,"occ":30.4,"adr":95.6},{"anio":2020,"mes":10,"mes_nombre":"Oct","noches":84,"reservas":36,"ing_aloj":11263,"ing_fnb":3360,"ing_total":14945,"occ":30.1,"adr":134.1},{"anio":2020,"mes":11,"mes_nombre":"Nov","noches":8,"reservas":4,"ing_aloj":5052,"ing_fnb":7440,"ing_total":12947,"occ":3.0,"adr":631.6},{"anio":2020,"mes":12,"mes_nombre":"Dic","noches":28,"reservas":9,"ing_aloj":4183,"ing_fnb":757,"ing_total":4411,"occ":10.0,"adr":149.4},{"anio":2021,"mes":1,"mes_nombre":"Ene","noches":20,"reservas":11,"ing_aloj":5348,"ing_fnb":2079,"ing_total":7374,"occ":7.2,"adr":267.4},{"anio":2021,"mes":2,"mes_nombre":"Feb","noches":16,"reservas":9,"ing_aloj":1260,"ing_fnb":452,"ing_total":1804,"occ":6.3,"adr":78.8},{"anio":2021,"mes":3,"mes_nombre":"Mar","noches":22,"reservas":11,"ing_aloj":2790,"ing_fnb":1079,"ing_total":4015,"occ":7.9,"adr":126.8},{"anio":2021,"mes":4,"mes_nombre":"Abr","noches":30,"reservas":19,"ing_aloj":3859,"ing_fnb":1760,"ing_total":5840,"occ":11.1,"adr":128.6},{"anio":2021,"mes":5,"mes_nombre":"May","noches":85,"reservas":29,"ing_aloj":5303,"ing_fnb":1248,"ing_total":6823,"occ":30.5,"adr":62.4},{"anio":2021,"mes":6,"mes_nombre":"Jun","noches":64,"reservas":29,"ing_aloj":8754,"ing_fnb":4551,"ing_total":13520,"occ":23.7,"adr":136.8},{"anio":2021,"mes":7,"mes_nombre":"Jul","noches":140,"reservas":57,"ing_aloj":12614,"ing_fnb":5083,"ing_total":18775,"occ":50.2,"adr":90.1},{"anio":2021,"mes":8,"mes_nombre":"Ago","noches":187,"reservas":70,"ing_aloj":28372,"ing_fnb":8673,"ing_total":40364,"occ":67.0,"adr":151.7},{"anio":2021,"mes":9,"mes_nombre":"Sep","noches":103,"reservas":48,"ing_aloj":19389,"ing_fnb":6181,"ing_total":23883,"occ":38.1,"adr":188.2},{"anio":2021,"mes":10,"mes_nombre":"Oct","noches":86,"reservas":42,"ing_aloj":11347,"ing_fnb":4589,"ing_total":16489,"occ":30.8,"adr":131.9},{"anio":2021,"mes":11,"mes_nombre":"Nov","noches":102,"reservas":43,"ing_aloj":13232,"ing_fnb":3916,"ing_total":17637,"occ":37.8,"adr":129.7},{"anio":2021,"mes":12,"mes_nombre":"Dic","noches":131,"reservas":29,"ing_aloj":20261,"ing_fnb":2770,"ing_total":15476,"occ":47.0,"adr":154.7},{"anio":2022,"mes":1,"mes_nombre":"Ene","noches":53,"reservas":11,"ing_aloj":5056,"ing_fnb":2167,"ing_total":7486,"occ":19.0,"adr":95.4},{"anio":2022,"mes":2,"mes_nombre":"Feb","noches":48,"reservas":24,"ing_aloj":6392,"ing_fnb":1961,"ing_total":8402,"occ":19.0,"adr":133.2},{"anio":2022,"mes":3,"mes_nombre":"Mar","noches":55,"reservas":25,"ing_aloj":8246,"ing_fnb":3071,"ing_total":11765,"occ":19.7,"adr":149.9},{"anio":2022,"mes":4,"mes_nombre":"Abr","noches":131,"reservas":47,"ing_aloj":12482,"ing_fnb":3933,"ing_total":17342,"occ":48.5,"adr":95.3},{"anio":2022,"mes":5,"mes_nombre":"May","noches":127,"reservas":41,"ing_aloj":13291,"ing_fnb":3436,"ing_total":17413,"occ":45.5,"adr":104.7},{"anio":2022,"mes":6,"mes_nombre":"Jun","noches":61,"reservas":22,"ing_aloj":11343,"ing_fnb":4390,"ing_total":15737,"occ":22.6,"adr":186.0},{"anio":2022,"mes":7,"mes_nombre":"Jul","noches":136,"reservas":45,"ing_aloj":13147,"ing_fnb":13484,"ing_total":27624,"occ":48.7,"adr":96.7},{"anio":2022,"mes":8,"mes_nombre":"Ago","noches":128,"reservas":41,"ing_aloj":24579,"ing_fnb":7014,"ing_total":32989,"occ":45.9,"adr":192.0},{"anio":2022,"mes":9,"mes_nombre":"Sep","noches":95,"reservas":42,"ing_aloj":11042,"ing_fnb":4424,"ing_total":17420,"occ":35.2,"adr":116.2},{"anio":2022,"mes":10,"mes_nombre":"Oct","noches":155,"reservas":44,"ing_aloj":12729,"ing_fnb":4756,"ing_total":17988,"occ":55.6,"adr":82.1},{"anio":2022,"mes":11,"mes_nombre":"Nov","noches":44,"reservas":25,"ing_aloj":7708,"ing_fnb":3049,"ing_total":11495,"occ":16.3,"adr":175.2},{"anio":2022,"mes":12,"mes_nombre":"Dic","noches":75,"reservas":38,"ing_aloj":7246,"ing_fnb":2505,"ing_total":10026,"occ":26.9,"adr":96.6},{"anio":2023,"mes":1,"mes_nombre":"Ene","noches":90,"reservas":14,"ing_aloj":6477,"ing_fnb":3866,"ing_total":10743,"occ":32.3,"adr":72.0},{"anio":2023,"mes":2,"mes_nombre":"Feb","noches":58,"reservas":30,"ing_aloj":6323,"ing_fnb":2863,"ing_total":9240,"occ":23.0,"adr":109.0},{"anio":2023,"mes":3,"mes_nombre":"Mar","noches":95,"reservas":39,"ing_aloj":10027,"ing_fnb":4452,"ing_total":15328,"occ":34.1,"adr":105.6},{"anio":2023,"mes":4,"mes_nombre":"Abr","noches":113,"reservas":48,"ing_aloj":11569,"ing_fnb":16290,"ing_total":28057,"occ":41.9,"adr":102.4},{"anio":2023,"mes":5,"mes_nombre":"May","noches":93,"reservas":37,"ing_aloj":13952,"ing_fnb":5822,"ing_total":20621,"occ":33.3,"adr":150.0},{"anio":2023,"mes":6,"mes_nombre":"Jun","noches":85,"reservas":37,"ing_aloj":8325,"ing_fnb":3497,"ing_total":12691,"occ":31.5,"adr":97.9},{"anio":2023,"mes":7,"mes_nombre":"Jul","noches":133,"reservas":55,"ing_aloj":16111,"ing_fnb":5588,"ing_total":22616,"occ":47.7,"adr":121.1},{"anio":2023,"mes":8,"mes_nombre":"Ago","noches":187,"reservas":82,"ing_aloj":21607,"ing_fnb":7561,"ing_total":31552,"occ":67.0,"adr":115.5},{"anio":2023,"mes":9,"mes_nombre":"Sep","noches":135,"reservas":56,"ing_aloj":15208,"ing_fnb":6032,"ing_total":22174,"occ":50.0,"adr":112.6},{"anio":2023,"mes":10,"mes_nombre":"Oct","noches":95,"reservas":40,"ing_aloj":13885,"ing_fnb":3496,"ing_total":18269,"occ":34.1,"adr":146.2},{"anio":2023,"mes":11,"mes_nombre":"Nov","noches":78,"reservas":40,"ing_aloj":8072,"ing_fnb":3762,"ing_total":12641,"occ":28.9,"adr":103.5},{"anio":2023,"mes":12,"mes_nombre":"Dic","noches":63,"reservas":31,"ing_aloj":18897,"ing_fnb":3444,"ing_total":23564,"occ":22.6,"adr":300.0},{"anio":2024,"mes":1,"mes_nombre":"Ene","noches":53,"reservas":5,"ing_aloj":4234,"ing_fnb":2575,"ing_total":8372,"occ":19.0,"adr":79.9},{"anio":2024,"mes":2,"mes_nombre":"Feb","noches":87,"reservas":40,"ing_aloj":15061,"ing_fnb":3821,"ing_total":19288,"occ":33.3,"adr":173.1},{"anio":2024,"mes":3,"mes_nombre":"Mar","noches":106,"reservas":39,"ing_aloj":13516,"ing_fnb":4109,"ing_total":18606,"occ":38.0,"adr":127.5},{"anio":2024,"mes":4,"mes_nombre":"Abr","noches":61,"reservas":29,"ing_aloj":9828,"ing_fnb":12237,"ing_total":22933,"occ":22.6,"adr":161.1},{"anio":2024,"mes":5,"mes_nombre":"May","noches":153,"reservas":66,"ing_aloj":20646,"ing_fnb":18660,"ing_total":41289,"occ":54.8,"adr":134.9},{"anio":2024,"mes":6,"mes_nombre":"Jun","noches":98,"reservas":50,"ing_aloj":9981,"ing_fnb":4062,"ing_total":15491,"occ":36.3,"adr":101.9},{"anio":2024,"mes":7,"mes_nombre":"Jul","noches":134,"reservas":55,"ing_aloj":14263,"ing_fnb":4351,"ing_total":20583,"occ":48.0,"adr":106.4},{"anio":2024,"mes":8,"mes_nombre":"Ago","noches":158,"reservas":50,"ing_aloj":25379,"ing_fnb":7724,"ing_total":35230,"occ":56.6,"adr":160.6},{"anio":2024,"mes":9,"mes_nombre":"Sep","noches":130,"reservas":55,"ing_aloj":16902,"ing_fnb":5472,"ing_total":23078,"occ":48.1,"adr":130.0},{"anio":2024,"mes":10,"mes_nombre":"Oct","noches":129,"reservas":59,"ing_aloj":16870,"ing_fnb":5023,"ing_total":23212,"occ":46.2,"adr":130.8},{"anio":2024,"mes":11,"mes_nombre":"Nov","noches":81,"reservas":39,"ing_aloj":11504,"ing_fnb":3223,"ing_total":16493,"occ":30.0,"adr":142.0},{"anio":2024,"mes":12,"mes_nombre":"Dic","noches":93,"reservas":44,"ing_aloj":12440,"ing_fnb":4790,"ing_total":18356,"occ":33.3,"adr":133.8},{"anio":2025,"mes":1,"mes_nombre":"Ene","noches":34,"reservas":17,"ing_aloj":8706,"ing_fnb":4255,"ing_total":13143,"occ":12.2,"adr":256.0},{"anio":2025,"mes":2,"mes_nombre":"Feb","noches":64,"reservas":27,"ing_aloj":4999,"ing_fnb":3566,"ing_total":9368,"occ":25.4,"adr":78.1},{"anio":2025,"mes":3,"mes_nombre":"Mar","noches":38,"reservas":19,"ing_aloj":6504,"ing_fnb":3045,"ing_total":10817,"occ":13.6,"adr":171.2},{"anio":2025,"mes":4,"mes_nombre":"Abr","noches":85,"reservas":36,"ing_aloj":12922,"ing_fnb":6483,"ing_total":20508,"occ":31.5,"adr":152.0},{"anio":2025,"mes":5,"mes_nombre":"May","noches":117,"reservas":47,"ing_aloj":12609,"ing_fnb":6488,"ing_total":19674,"occ":41.9,"adr":107.8},{"anio":2025,"mes":6,"mes_nombre":"Jun","noches":89,"reservas":40,"ing_aloj":14642,"ing_fnb":10881,"ing_total":26591,"occ":33.0,"adr":164.5},{"anio":2025,"mes":7,"mes_nombre":"Jul","noches":157,"reservas":58,"ing_aloj":15224,"ing_fnb":6594,"ing_total":22230,"occ":56.3,"adr":97.0},{"anio":2025,"mes":8,"mes_nombre":"Ago","noches":163,"reservas":75,"ing_aloj":24135,"ing_fnb":6347,"ing_total":32502,"occ":58.4,"adr":148.1},{"anio":2025,"mes":9,"mes_nombre":"Sep","noches":115,"reservas":44,"ing_aloj":12602,"ing_fnb":7428,"ing_total":20437,"occ":42.6,"adr":109.6},{"anio":2025,"mes":10,"mes_nombre":"Oct","noches":120,"reservas":50,"ing_aloj":20459,"ing_fnb":5219,"ing_total":27010,"occ":43.0,"adr":170.5},{"anio":2025,"mes":11,"mes_nombre":"Nov","noches":89,"reservas":45,"ing_aloj":11430,"ing_fnb":4901,"ing_total":17208,"occ":33.0,"adr":128.4},{"anio":2025,"mes":12,"mes_nombre":"Dic","noches":110,"reservas":40,"ing_aloj":14640,"ing_fnb":2945,"ing_total":18322,"occ":39.4,"adr":133.1}],"canal_data":[{"anio":2018,"canal":"Directo","noches":647,"ingreso":132184,"reservas":289},{"anio":2018,"canal":"Booking.com","noches":169,"ingreso":24477,"reservas":89},{"anio":2018,"canal":"Expedia","noches":110,"ingreso":13355,"reservas":48},{"anio":2018,"canal":"Pura Aventura","noches":45,"ingreso":8627,"reservas":22},{"anio":2019,"canal":"Directo","noches":715,"ingreso":155302,"reservas":326},{"anio":2019,"canal":"Booking.com","noches":212,"ingreso":31860,"reservas":93},{"anio":2019,"canal":"Expedia","noches":70,"ingreso":10065,"reservas":43},{"anio":2019,"canal":"Pura Aventura","noches":49,"ingreso":9554,"reservas":24},{"anio":2020,"canal":"Directo","noches":558,"ingreso":124805,"reservas":235},{"anio":2020,"canal":"Booking.com","noches":62,"ingreso":10548,"reservas":29},{"anio":2020,"canal":"Expedia","noches":33,"ingreso":4333,"reservas":15},{"anio":2020,"canal":"Airbnb","noches":4,"ingreso":836,"reservas":2},{"anio":2020,"canal":"Pura Aventura","noches":2,"ingreso":281,"reservas":1},{"anio":2021,"canal":"Directo","noches":697,"ingreso":162735,"reservas":260},{"anio":2021,"canal":"Booking.com","noches":195,"ingreso":30785,"reservas":112},{"anio":2021,"canal":"Expedia","noches":17,"ingreso":2341,"reservas":9},{"anio":2021,"canal":"Airbnb","noches":68,"ingreso":10569,"reservas":11},{"anio":2021,"canal":"Pura Aventura","noches":9,"ingreso":1681,"reservas":5},{"anio":2022,"canal":"Directo","noches":870,"ingreso":204200,"reservas":301},{"anio":2022,"canal":"Booking.com","noches":144,"ingreso":23553,"reservas":72},{"anio":2022,"canal":"Expedia","noches":31,"ingreso":4199,"reservas":13},{"anio":2022,"canal":"Airbnb","noches":33,"ingreso":4991,"reservas":5},{"anio":2022,"canal":"Pura Aventura","noches":30,"ingreso":5582,"reservas":14},{"anio":2023,"canal":"Directo","noches":895,"ingreso":182491,"reservas":370},{"anio":2023,"canal":"Booking.com","noches":196,"ingreso":31559,"reservas":95},{"anio":2023,"canal":"Expedia","noches":69,"ingreso":9411,"reservas":29},{"anio":2023,"canal":"Airbnb","noches":53,"ingreso":10285,"reservas":9},{"anio":2023,"canal":"Pura Aventura","noches":12,"ingreso":3203,"reservas":6},{"anio":2024,"canal":"Directo","noches":877,"ingreso":203628,"reservas":367},{"anio":2024,"canal":"Booking.com","noches":206,"ingreso":33750,"reservas":102},{"anio":2024,"canal":"Expedia","noches":79,"ingreso":10361,"reservas":39},{"anio":2024,"canal":"Airbnb","noches":99,"ingreso":14233,"reservas":14},{"anio":2024,"canal":"Pura Aventura","noches":22,"ingreso":4618,"reservas":9},{"anio":2025,"canal":"Directo","noches":896,"ingreso":204895,"reservas":379},{"anio":2025,"canal":"Booking.com","noches":136,"ingreso":23309,"reservas":72},{"anio":2025,"canal":"Expedia","noches":72,"ingreso":10286,"reservas":31},{"anio":2025,"canal":"Airbnb","noches":70,"ingreso":10540,"reservas":13},{"anio":2025,"canal":"Pura Aventura","noches":7,"ingreso":1840,"reservas":3}],"fnb_anual":[{"anio":2018,"Alojamiento":131993,"Cenas/Eventos":39755,"Bar/Bebidas":6419,"Desayunos":169,"Cama supletoria":5885,"Suplementos":680,"Otros":13518,"Descuentos":-7047},{"anio":2019,"Alojamiento":143776,"Cenas/Eventos":47876,"Bar/Bebidas":5731,"Desayunos":185,"Cama supletoria":5748,"Suplementos":861,"Otros":9846,"Descuentos":-7785},{"anio":2020,"Alojamiento":93371,"Cenas/Eventos":31113,"Bar/Bebidas":3152,"Desayunos":200,"Cama supletoria":3850,"Suplementos":1300,"Otros":3979,"Descuentos":-5651},{"anio":2021,"Alojamiento":132528,"Cenas/Eventos":37397,"Bar/Bebidas":4052,"Desayunos":329,"Cama supletoria":6642,"Suplementos":1456,"Otros":3839,"Descuentos":-14844},{"anio":2022,"Alojamiento":133024,"Cenas/Eventos":49216,"Bar/Bebidas":4224,"Desayunos":543,"Cama supletoria":4345,"Suplementos":1105,"Otros":7033,"Descuentos":-4436},{"anio":2023,"Alojamiento":150454,"Cenas/Eventos":58123,"Bar/Bebidas":7139,"Desayunos":1403,"Cama supletoria":4565,"Suplementos":1131,"Otros":7164,"Descuentos":-2773},{"anio":2024,"Alojamiento":170624,"Cenas/Eventos":65597,"Bar/Bebidas":8818,"Desayunos":1632,"Cama supletoria":5418,"Suplementos":1966,"Otros":10676,"Descuentos":-2624},{"anio":2025,"Alojamiento":157839,"Cenas/Eventos":54365,"Bar/Bebidas":8042,"Desayunos":4875,"Cama supletoria":2420,"Suplementos":1577,"Otros":4719,"Descuentos":-1316}],"pais_data":[{"anio":2018,"pais":"ES","noches":506,"reservas":249},{"anio":2018,"pais":"GB","noches":177,"reservas":67},{"anio":2018,"pais":"NL","noches":26,"reservas":10},{"anio":2018,"pais":"FR","noches":42,"reservas":14},{"anio":2018,"pais":"DE","noches":19,"reservas":9},{"anio":2018,"pais":"US","noches":33,"reservas":15},{"anio":2018,"pais":"BE","noches":36,"reservas":13},{"anio":2018,"pais":"CA","noches":2,"reservas":1},{"anio":2018,"pais":"IE","noches":2,"reservas":2},{"anio":2018,"pais":"CH","noches":3,"reservas":2},{"anio":2019,"pais":"ES","noches":499,"reservas":260},{"anio":2019,"pais":"GB","noches":193,"reservas":67},{"anio":2019,"pais":"NL","noches":55,"reservas":20},{"anio":2019,"pais":"FR","noches":29,"reservas":15},{"anio":2019,"pais":"DE","noches":26,"reservas":9},{"anio":2019,"pais":"US","noches":52,"reservas":25},{"anio":2019,"pais":"BE","noches":18,"reservas":8},{"anio":2019,"pais":"CA","noches":9,"reservas":4},{"anio":2019,"pais":"IE","noches":2,"reservas":1},{"anio":2019,"pais":"CH","noches":4,"reservas":4},{"anio":2020,"pais":"ES","noches":483,"reservas":213},{"anio":2020,"pais":"GB","noches":10,"reservas":4},{"anio":2020,"pais":"FR","noches":7,"reservas":4},{"anio":2020,"pais":"DE","noches":4,"reservas":2},{"anio":2020,"pais":"US","noches":1,"reservas":1},{"anio":2020,"pais":"IE","noches":1,"reservas":1},{"anio":2020,"pais":"CH","noches":12,"reservas":1},{"anio":2021,"pais":"ES","noches":554,"reservas":252},{"anio":2021,"pais":"GB","noches":22,"reservas":8},{"anio":2021,"pais":"NL","noches":109,"reservas":9},{"anio":2021,"pais":"FR","noches":16,"reservas":9},{"anio":2021,"pais":"DE","noches":27,"reservas":10},{"anio":2021,"pais":"US","noches":5,"reservas":3},{"anio":2021,"pais":"BE","noches":8,"reservas":4},{"anio":2021,"pais":"CH","noches":2,"reservas":1},{"anio":2022,"pais":"ES","noches":528,"reservas":226},{"anio":2022,"pais":"GB","noches":95,"reservas":29},{"anio":2022,"pais":"NL","noches":101,"reservas":14},{"anio":2022,"pais":"FR","noches":8,"reservas":6},{"anio":2022,"pais":"DE","noches":23,"reservas":8},{"anio":2022,"pais":"US","noches":17,"reservas":7},{"anio":2022,"pais":"CA","noches":19,"reservas":3},{"anio":2022,"pais":"IE","noches":33,"reservas":7},{"anio":2022,"pais":"CH","noches":14,"reservas":4},{"anio":2023,"pais":"ES","noches":656,"reservas":307},{"anio":2023,"pais":"GB","noches":164,"reservas":47},{"anio":2023,"pais":"NL","noches":52,"reservas":19},{"anio":2023,"pais":"FR","noches":30,"reservas":16},{"anio":2023,"pais":"DE","noches":33,"reservas":13},{"anio":2023,"pais":"US","noches":22,"reservas":11},{"anio":2023,"pais":"BE","noches":17,"reservas":5},{"anio":2023,"pais":"IE","noches":5,"reservas":2},{"anio":2023,"pais":"CH","noches":7,"reservas":4},{"anio":2024,"pais":"ES","noches":721,"reservas":332},{"anio":2024,"pais":"GB","noches":181,"reservas":42},{"anio":2024,"pais":"NL","noches":50,"reservas":20},{"anio":2024,"pais":"FR","noches":50,"reservas":23},{"anio":2024,"pais":"DE","noches":21,"reservas":9},{"anio":2024,"pais":"US","noches":25,"reservas":10},{"anio":2024,"pais":"BE","noches":29,"reservas":9},{"anio":2024,"pais":"CA","noches":13,"reservas":6},{"anio":2024,"pais":"IE","noches":5,"reservas":2},{"anio":2024,"pais":"CH","noches":3,"reservas":3},{"anio":2025,"pais":"ES","noches":630,"reservas":292},{"anio":2025,"pais":"GB","noches":181,"reservas":45},{"anio":2025,"pais":"NL","noches":62,"reservas":19},{"anio":2025,"pais":"FR","noches":21,"reservas":14},{"anio":2025,"pais":"DE","noches":28,"reservas":15},{"anio":2025,"pais":"US","noches":23,"reservas":9},{"anio":2025,"pais":"BE","noches":11,"reservas":4},{"anio":2025,"pais":"CA","noches":11,"reservas":7},{"anio":2025,"pais":"IE","noches":4,"reservas":1},{"anio":2025,"pais":"CH","noches":7,"reservas":3}],"estancia_data":[{"anio":2018,"avg_noches":2.2,"avg_adultos":2.3,"pct_con_ninos":6.5,"n_reservas":448,"1n":150,"2n":175,"3n":73,"4n":27,"5n":14,"6mas":9},{"anio":2019,"avg_noches":2.2,"avg_adultos":2.5,"pct_con_ninos":5.3,"n_reservas":486,"1n":191,"2n":162,"3n":80,"4n":25,"5n":11,"6mas":17},{"anio":2020,"avg_noches":2.3,"avg_adultos":3.0,"pct_con_ninos":2.1,"n_reservas":282,"1n":84,"2n":111,"3n":47,"4n":20,"5n":9,"6mas":11},{"anio":2021,"avg_noches":2.5,"avg_adultos":2.9,"pct_con_ninos":7.6,"n_reservas":397,"1n":100,"2n":194,"3n":51,"4n":22,"5n":12,"6mas":18},{"anio":2022,"avg_noches":2.7,"avg_adultos":2.9,"pct_con_ninos":8.9,"n_reservas":405,"1n":103,"2n":167,"3n":68,"4n":24,"5n":13,"6mas":30},{"anio":2023,"avg_noches":2.4,"avg_adultos":2.5,"pct_con_ninos":9.2,"n_reservas":509,"1n":145,"2n":213,"3n":83,"4n":34,"5n":11,"6mas":23},{"anio":2024,"avg_noches":2.4,"avg_adultos":2.4,"pct_con_ninos":10.4,"n_reservas":531,"1n":148,"2n":205,"3n":102,"4n":38,"5n":21,"6mas":17},{"anio":2025,"avg_noches":2.4,"avg_adultos":2.7,"pct_con_ninos":14.9,"n_reservas":498,"1n":125,"2n":211,"3n":98,"4n":39,"5n":6,"6mas":19}],"top_art_data":[{"articulo":"Estancia","total":982885,"lineas":3099},{"articulo":"Cena / Dinner","total":140701,"lineas":1395},{"articulo":"Cenando Canciones","total":99292,"lineas":1089},{"articulo":"Cama supletoria","total":32988,"lineas":338},{"articulo":"Boda - Banquete","total":31998,"lineas":11},{"articulo":"Comida / Lunch","total":13450,"lineas":81},{"articulo":"Copas / Alcoholic Drinks","total":9584,"lineas":504},{"articulo":"Suplemento Perro","total":9396,"lineas":250},{"articulo":"Boda - Barra libre","total":8236,"lineas":9},{"articulo":"Desayuno","total":7440,"lineas":133},{"articulo":"Cena Especial Música Directo","total":7098,"lineas":39},{"articulo":"Salón Privado","total":6855,"lineas":53},{"articulo":"Boda - Alquiler espacio","total":6823,"lineas":6},{"articulo":"Boda Decoración","total":5048,"lineas":9},{"articulo":"Medio Menu","total":4944,"lineas":91}],"estac_data":[{"mes":"Ene","occ_avg":17.0,"adr_avg":175.2,"ing_avg":6605},{"mes":"Feb","occ_avg":21.5,"adr_avg":113.2,"ing_avg":6655},{"mes":"Mar","occ_avg":21.0,"adr_avg":153.1,"ing_avg":8232},{"mes":"Abr","occ_avg":32.1,"adr_avg":126.2,"ing_avg":10403},{"mes":"May","occ_avg":41.7,"adr_avg":109.9,"ing_avg":13020},{"mes":"Jun","occ_avg":29.6,"adr_avg":141.1,"ing_avg":11050},{"mes":"Jul","occ_avg":48.8,"adr_avg":99.6,"ing_avg":13580},{"mes":"Ago","occ_avg":57.8,"adr_avg":154.0,"ing_avg":24450},{"mes":"Sep","occ_avg":43.7,"adr_avg":130.0,"ing_avg":15194},{"mes":"Oct","occ_avg":40.9,"adr_avg":138.0,"ing_avg":15326},{"mes":"Nov","occ_avg":28.1,"adr_avg":137.2,"ing_avg":10124},{"mes":"Dic","occ_avg":31.8,"adr_avg":158.8,"ing_avg":13614}]};
+
+// ============================================================
+// ESTADO + HELPERS
+// ============================================================
+let CY = 2024;
+const CC = {};
+const YALL = [2018,2019,2020,2021,2022,2023,2024,2025];
+const MN = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+const CMAP = {gold:'#c8a45a',gold2:'#e8cc8a',green:'#6abf8a',red:'#cf6e6e',blue:'#6a9ecf',purple:'#9b7ed4',orange:'#cf9a5a',teal:'#5ab8b8'};
+const CANAL_C = {'Directo':CMAP.gold,'Booking.com':CMAP.blue,'Expedia':CMAP.orange,'Airbnb':CMAP.red,'Pura Aventura':CMAP.green,'Otros':CMAP.purple};
+const PAIS_C = {'ES':'#c8a45a','GB':'#6a9ecf','NL':'#ff8c42','FR':'#6abf8a','DE':'#9b7ed4','US':'#cf6e6e','BE':'#5ab8b8','CA':'#d4a44c','IE':'#8fbf6a','CH':'#b87ecf'};
+const PAIS_N = {'ES':'España','GB':'Reino Unido','NL':'Holanda','FR':'Francia','DE':'Alemania','US':'EE.UU.','BE':'Bélgica','CA':'Canadá','IE':'Irlanda','CH':'Suiza'};
+
+Chart.defaults.color='#6a6660';Chart.defaults.borderColor='rgba(255,255,255,0.05)';
+Chart.defaults.font.family="'Outfit',sans-serif";Chart.defaults.font.size=11;
+
+const fmt=(n,d=0)=>new Intl.NumberFormat('es-ES',{style:'currency',currency:'EUR',maximumFractionDigits:d}).format(n);
+const fmtK=n=>n>=1000?Math.round(n/1000)+'k€':n+'€';
+const pct=(a,b)=>b?((a-b)/b*100).toFixed(1):0;
+
+function yd(y){return D.kpi_anual.find(d=>d.anio===y)}
+function md(y){return D.kpi_mensual.filter(d=>d.anio===y)}
+function kill(id){if(CC[id]){CC[id].destroy();delete CC[id]}}
+function make(id,cfg){kill(id);const c=document.getElementById(id);if(!c)return;CC[id]=new Chart(c.getContext('2d'),cfg)}
+
+function setDelta(id,cur,prev){
+  const el=document.getElementById(id);if(!el)return;
+  const p=pct(cur,prev);const s=p>=0?'+':'';
+  el.className='delta '+(p>=0?'up':'dn');
+  el.textContent=`${s}${p}% vs ${CY-1}`;
+}
+
+// ============================================================
+// RESUMEN
+// ============================================================
+function drawResumen(){
+  const cur=yd(CY),prev=yd(CY-1);
+  if(!cur)return;
+  document.getElementById('k-total').textContent=fmt(cur.ing_total);
+  document.getElementById('k-aloj').textContent=fmt(cur.ing_aloj);
+  document.getElementById('k-fnb').textContent=fmt(cur.ing_fnb);
+  document.getElementById('k-adr').textContent=cur.adr.toFixed(0)+'€';
+  document.getElementById('k-noches').textContent=cur.noches.toLocaleString();
+  document.getElementById('k-res-sub').textContent=cur.reservas+' reservas · '+cur.estancia_media+'n media';
+  if(prev){setDelta('k-total-d',cur.ing_total,prev.ing_total);setDelta('k-aloj-d',cur.ing_aloj,prev.ing_aloj);setDelta('k-fnb-d',cur.ing_fnb,prev.ing_fnb);setDelta('k-adr-d',cur.adr,prev.adr);setDelta('k-noches-d',cur.noches,prev.noches)}
+
+  // Insight
+  const ins={
+    2024:`<h4>🏆 2024 — Mejor año histórico</h4><p>Ingreso total de <strong>262.930€</strong>, máximo absoluto. Alojamiento roza <strong>171k€</strong> con un ADR de <strong>133€</strong>. Mayo destaca con 41.289€ (bodas + alta ocupación). El F&B supera los 76k€ por primera vez.</p>`,
+    2025:`<h4>📉 2025 — Ligua bajada tras el récord</h4><p>Ingreso total de <strong>237.808€</strong>, un 9.6% menos que 2024. El alojamiento cae a 158k€ pero el ADR se mantiene en <strong>134€</strong>. Octubre sorprende con ADR de 170€. Buena señal: el F&B aguanta en 68k€.</p>`,
+    2023:`<h4>📈 2023 — Segundo mejor año histórico</h4><p>Con <strong>227.497€</strong> totales, 2023 consolida la recuperación postpandemia. Agosto alcanza los 31.552€. El F&B crece a 66k€ por la expansión de "Cenando Canciones" y eventos.</p>`,
+    2022:`<h4>🔄 2022 — Recuperación completa</h4><p>Primer año postCOVID con operativa normal: <strong>195.686€</strong>. El ADR baja a 120€ pero la ocupación sube a 33.7%. Julio incluye un gran evento F&B (13.484€ solo en ese mes).</p>`,
+    2021:`<h4>🦠 2021 — Recuperación parcial</h4><p>Con restricciones hasta mayo, el año arranca lento pero Agosto logra 40.364€ — el mejor mes registrado. Los descuentos alcanzan los 14.844€, probablemente ajustes por cancelaciones.</p>`,
+    2019:`<h4>📅 2019 — Mejor año prepandemia</h4><p><strong>206.237€</strong> totales con el mejor ADR histórico: <strong>137€</strong>. Octubre es extraordinario por F&B (13.462€ de cenas/eventos). Base de comparación ideal para medir la recuperación.</p>`,
+  };
+  document.getElementById('insight-r').innerHTML=ins[CY]||`<h4>📊 ${CY}</h4><p>Ingreso total: <strong>${fmt(cur.ing_total)}</strong> · Alojamiento: <strong>${fmt(cur.ing_aloj)}</strong> · F&B: <strong>${fmt(cur.ing_fnb)}</strong> · ADR: <strong>${cur.adr.toFixed(0)}€</strong> · Ocupación: <strong>${cur.occ}%</strong></p>`;
+
+  const cm=md(CY),pm=md(CY-1);
+  // Ingresos mensuales (apilado aloj+fnb)
+  make('c-ing-mes',{type:'bar',data:{labels:MN,datasets:[
+    {label:`Alojamiento ${CY}`,data:cm.map(d=>d.ing_aloj),backgroundColor:'rgba(200,164,90,0.75)',borderRadius:3,stack:'cur'},
+    {label:`F&B ${CY}`,data:cm.map(d=>d.ing_fnb),backgroundColor:'rgba(106,191,138,0.65)',borderRadius:3,stack:'cur'},
+    {label:`Total ${CY-1}`,data:pm.map(d=>d.ing_total),backgroundColor:'rgba(106,158,207,0.25)',borderRadius:3,stack:'prv',type:'bar'},
+  ]},options:{responsive:true,plugins:{legend:{position:'top',labels:{boxWidth:10,font:{size:10}}}},scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,ticks:{callback:v=>fmtK(v)}}}}});
+
+  // Ocupación mensual
+  make('c-occ-mes',{type:'line',data:{labels:MN,datasets:[
+    {label:String(CY),data:cm.map(d=>d.occ||null),borderColor:CMAP.gold,backgroundColor:'rgba(200,164,90,0.08)',tension:.35,fill:true,pointRadius:3},
+    {label:String(CY-1),data:pm.map(d=>d.occ||null),borderColor:CMAP.blue,backgroundColor:'rgba(106,158,207,0.05)',tension:.35,fill:true,pointRadius:3,borderDash:[4,3]},
+  ]},options:{responsive:true,plugins:{legend:{position:'top',labels:{boxWidth:10,font:{size:10}}}},scales:{y:{min:0,max:80,ticks:{callback:v=>v+'%'}},x:{grid:{display:false}}}}});
+
+  // Estacionalidad
+  make('c-estac',{type:'bar',data:{labels:D.estac_data.map(d=>d.mes),datasets:[{label:'Occ. media',data:D.estac_data.map(d=>d.occ_avg),backgroundColor:D.estac_data.map(d=>d.occ_avg>50?'rgba(106,191,138,.7)':d.occ_avg<25?'rgba(207,110,110,.7)':'rgba(200,164,90,.6)'),borderRadius:4}]},options:{responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`Ocupación: ${c.raw}%`}}},scales:{y:{min:0,max:70,ticks:{callback:v=>v+'%'}},x:{grid:{display:false}}}}});
+
+  // ADR mensual
+  make('c-adr-mes',{type:'line',data:{labels:MN,datasets:[
+    {label:`ADR ${CY}`,data:cm.map(d=>d.adr||null),borderColor:CMAP.gold,tension:.35,pointRadius:3,fill:false},
+    {label:`ADR ${CY-1}`,data:pm.map(d=>d.adr||null),borderColor:CMAP.purple,tension:.35,pointRadius:3,fill:false,borderDash:[4,3]},
+  ]},options:{responsive:true,plugins:{legend:{position:'top',labels:{boxWidth:10,font:{size:10}}}},scales:{y:{ticks:{callback:v=>v+'€'}},x:{grid:{display:false}}}}});
+}
+
+// ============================================================
+// EVOLUCIÓN
+// ============================================================
+function drawEvolucion(){
+  const yrs=YALL,aloj=yrs.map(y=>yd(y)?.ing_aloj||0),fnb=yrs.map(y=>yd(y)?.ing_fnb||0),otros=yrs.map(y=>(yd(y)?.ing_otros||0)+(yd(y)?.descuentos||0));
+  make('c-anual-ing',{type:'bar',data:{labels:yrs,datasets:[
+    {label:'Alojamiento',data:aloj,backgroundColor:'rgba(200,164,90,.75)',borderRadius:3,stack:'s'},
+    {label:'F&B/Eventos',data:fnb,backgroundColor:'rgba(106,191,138,.65)',borderRadius:3,stack:'s'},
+    {label:'Otros neto',data:otros,backgroundColor:'rgba(106,158,207,.5)',borderRadius:3,stack:'s'},
+  ]},options:{responsive:true,plugins:{legend:{position:'top',labels:{boxWidth:10}}},scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,ticks:{callback:v=>fmtK(v)}}}}});
+
+  make('c-anual-occ',{type:'line',data:{labels:yrs,datasets:[{label:'Ocupación %',data:yrs.map(y=>yd(y)?.occ||0),borderColor:CMAP.gold,backgroundColor:'rgba(200,164,90,.1)',fill:true,tension:.3,pointRadius:4,pointBackgroundColor:CMAP.gold}]},options:{responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.raw+'%'}}},scales:{y:{min:0,max:55,ticks:{callback:v=>v+'%'}},x:{grid:{display:false}}}}});
+  make('c-anual-adr',{type:'line',data:{labels:yrs,datasets:[{label:'ADR €',data:yrs.map(y=>yd(y)?.adr||0),borderColor:CMAP.blue,backgroundColor:'rgba(106,158,207,.1)',fill:true,tension:.3,pointRadius:4,pointBackgroundColor:CMAP.blue}]},options:{responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.raw+'€'}}},scales:{y:{ticks:{callback:v=>v+'€'}},x:{grid:{display:false}}}}});
+  make('c-anual-noc',{type:'bar',data:{labels:yrs,datasets:[{label:'Noches',data:yrs.map(y=>yd(y)?.noches||0),backgroundColor:'rgba(155,126,212,.55)',borderRadius:4}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{},x:{grid:{display:false}}}}});
+
+  // Tabla
+  const t=document.getElementById('tbl-hist');
+  t.innerHTML='<thead><tr><th>Año</th><th class="r">Total</th><th class="r">vs ant.</th><th class="r">Alojamiento</th><th class="r">F&B</th><th class="r">ADR</th><th class="r">Ocup.</th><th class="r">Noches</th><th class="r">Reservas</th></tr></thead><tbody>'+
+  YALL.slice().reverse().map((y,i,a)=>{const d=yd(y);const pr=yd(y-1);const p=pr?pct(d.ing_total,pr.ing_total):null;const b=p!==null?`<span class="badge ${p>=0?'bg':'br'}">${p>=0?'+':''}${p}%</span>`:'—';
+  return`<tr><td class="hl">${y}${y===2024?' 🏆':y===2020?' 🦠':''}</td><td class="r">${fmt(d.ing_total)}</td><td class="r">${b}</td><td class="r">${fmt(d.ing_aloj)}</td><td class="r">${fmt(d.ing_fnb)}</td><td class="r">${d.adr.toFixed(0)}€</td><td class="r">${d.occ}%</td><td class="r">${d.noches.toLocaleString()}</td><td class="r">${d.reservas}</td></tr>`;}).join('')+'</tbody>';
+}
+
+// ============================================================
+// INGRESOS / F&B
+// ============================================================
+function drawIngresos(){
+  const f=D.fnb_anual.find(d=>d.anio===CY)||{};
+  const cats=['Alojamiento','Cenas/Eventos','Bar/Bebidas','Cama supletoria','Suplementos','Desayunos','Otros'];
+  const catC=[CMAP.gold,CMAP.green,CMAP.blue,CMAP.orange,CMAP.purple,CMAP.teal,'#888'];
+  const vals=cats.map(c=>Math.max(0,f[c]||0));
+  const total=vals.reduce((a,b)=>a+b,0)+(f['Descuentos']||0);
+
+  make('c-desglose-donut',{type:'doughnut',data:{labels:cats,datasets:[{data:vals,backgroundColor:catC.map(c=>c+'bb'),borderWidth:2,borderColor:'#1e1e1b',hoverOffset:5}]},options:{responsive:true,cutout:'60%',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.label}: ${fmt(c.raw)} (${(c.raw/(total||1)*100).toFixed(0)}%)`}}}}});
+  const leg=document.getElementById('leg-desglose');
+  leg.innerHTML=cats.map((c,i)=>`<div class="leg-i"><div class="leg-dot" style="background:${catC[i]}"></div><span>${c}</span><span class="leg-v">${fmt(vals[i])}</span></div>`).join('');
+
+  // F&B evolución apilado
+  make('c-fnb-evol',{type:'bar',data:{labels:YALL,datasets:[
+    {label:'Alojamiento',data:YALL.map(y=>D.fnb_anual.find(d=>d.anio===y)?.Alojamiento||0),backgroundColor:'rgba(200,164,90,.75)',borderRadius:3,stack:'s'},
+    {label:'Cenas/Eventos',data:YALL.map(y=>D.fnb_anual.find(d=>d.anio===y)?.['Cenas/Eventos']||0),backgroundColor:'rgba(106,191,138,.65)',borderRadius:3,stack:'s'},
+    {label:'Bar/Bebidas',data:YALL.map(y=>D.fnb_anual.find(d=>d.anio===y)?.['Bar/Bebidas']||0),backgroundColor:'rgba(106,158,207,.55)',borderRadius:3,stack:'s'},
+    {label:'Otros',data:YALL.map(y=>{const d=D.fnb_anual.find(x=>x.anio===y)||{};return (d['Cama supletoria']||0)+(d['Suplementos']||0)+(d['Desayunos']||0)+(d['Otros']||0);}),backgroundColor:'rgba(155,126,212,.45)',borderRadius:3,stack:'s'},
+  ]},options:{responsive:true,plugins:{legend:{position:'top',labels:{boxWidth:10}}},scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,ticks:{callback:v=>fmtK(v)}}}}});
+
+  // Top artículos (horizontal)
+  const top=D.top_art_data.slice(0,12);
+  make('c-top-art',{type:'bar',data:{labels:top.map(d=>d.articulo.length>22?d.articulo.slice(0,22)+'…':d.articulo),datasets:[{label:'Ingresos 2019–2025',data:top.map(d=>d.total),backgroundColor:top.map((_,i)=>i===0?CMAP.gold+'bb':i<3?CMAP.green+'99':'rgba(200,164,90,0.35)'),borderRadius:3}]},options:{responsive:true,indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmt(c.raw)}}},scales:{x:{ticks:{callback:v=>fmtK(v)}},y:{ticks:{font:{size:10}}}}}});
+
+  // Mensual apilado año seleccionado
+  const cm=md(CY);
+  make('c-mes-stack',{type:'bar',data:{labels:MN,datasets:[
+    {label:'Alojamiento',data:cm.map(d=>d.ing_aloj),backgroundColor:'rgba(200,164,90,.75)',borderRadius:3,stack:'s'},
+    {label:'F&B',data:cm.map(d=>d.ing_fnb),backgroundColor:'rgba(106,191,138,.65)',borderRadius:3,stack:'s'},
+  ]},options:{responsive:true,plugins:{legend:{position:'top',labels:{boxWidth:10}},tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${fmt(c.raw)}`}}},scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,ticks:{callback:v=>fmtK(v)}}}}});
+}
+
+// ============================================================
+// CANALES
+// ============================================================
+function drawCanales(){
+  const canales=['Directo','Booking.com','Expedia','Airbnb','Pura Aventura'];
+  const yc=D.canal_data.filter(d=>d.anio===CY);
+  const tot=yc.reduce((s,d)=>s+d.noches,0);
+
+  make('c-canal-donut',{type:'doughnut',data:{labels:yc.map(d=>d.canal),datasets:[{data:yc.map(d=>d.noches),backgroundColor:yc.map(d=>CANAL_C[d.canal]||'#888'),borderWidth:2,borderColor:'#1e1e1b',hoverOffset:5}]},options:{responsive:true,cutout:'60%',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.label}: ${c.raw}n (${(c.raw/tot*100).toFixed(0)}%)`}}}}});
+  const leg=document.getElementById('leg-canal');
+  leg.innerHTML=yc.map(d=>`<div class="leg-i"><div class="leg-dot" style="background:${CANAL_C[d.canal]||'#888'}"></div><span>${d.canal}</span><span class="leg-v">${d.noches}n · ${(d.noches/tot*100).toFixed(0)}%</span></div>`).join('');
+
+  make('c-canal-evol',{type:'bar',data:{labels:YALL,datasets:canales.map(c=>({label:c,data:YALL.map(y=>D.canal_data.find(d=>d.anio===y&&d.canal===c)?.noches||0),backgroundColor:(CANAL_C[c]||'#888')+'99',borderRadius:3,stack:'s'}))},options:{responsive:true,plugins:{legend:{position:'top',labels:{boxWidth:10}}},scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true}}}});
+
+  // Estancia media por canal (promedio 2019-2025)
+  const estCanal=canales.map(c=>{const rs=D.canal_data.filter(d=>d.canal===c&&d.anio>=2019&&d.anio<=2025);const totN=rs.reduce((s,d)=>s+d.noches,0);const totR=rs.reduce((s,d)=>s+d.reservas,0);return{canal:c,avg:totR>0?+(totN/totR).toFixed(1):0}});
+  make('c-canal-estancia',{type:'bar',data:{labels:estCanal.map(d=>d.canal),datasets:[{label:'Noches/reserva promedio',data:estCanal.map(d=>d.avg),backgroundColor:canales.map(c=>(CANAL_C[c]||'#888')+'bb'),borderRadius:5}]},options:{responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.raw} noches/reserva`}}},scales:{y:{min:0,max:8,ticks:{callback:v=>v+'n'}},x:{grid:{display:false}}}}});
+
+  make('c-canal-ing',{type:'bar',data:{labels:yc.map(d=>d.canal),datasets:[{label:'Ingresos',data:yc.map(d=>d.ingreso),backgroundColor:yc.map(d=>(CANAL_C[d.canal]||'#888')+'bb'),borderRadius:5}]},options:{responsive:true,indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmt(c.raw)}}},scales:{x:{ticks:{callback:v=>fmtK(v)}},y:{grid:{display:false}}}}});
+}
+
+// ============================================================
+// CLIENTES
+// ============================================================
+function drawClientes(){
+  const yp=D.pais_data.filter(d=>d.anio===CY).sort((a,b)=>b.noches-a.noches);
+  make('c-pais-bar',{type:'bar',data:{labels:yp.map(d=>PAIS_N[d.pais]||d.pais),datasets:[{label:'Noches',data:yp.map(d=>d.noches),backgroundColor:yp.map(d=>PAIS_C[d.pais]||'#888'),borderRadius:4}]},options:{responsive:true,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{},y:{ticks:{font:{size:10}},grid:{display:false}}}}});
+
+  // Evolución países top 5
+  const top5=['ES','GB','NL','FR','DE'];
+  make('c-pais-evol',{type:'line',data:{labels:YALL,datasets:top5.map(p=>({label:PAIS_N[p]||p,data:YALL.map(y=>D.pais_data.find(d=>d.anio===y&&d.pais===p)?.noches||0),borderColor:PAIS_C[p],backgroundColor:PAIS_C[p]+'15',tension:.3,fill:false,pointRadius:3}))},options:{responsive:true,plugins:{legend:{position:'top',labels:{boxWidth:10,font:{size:10}}}},scales:{y:{},x:{grid:{display:false}}}}});
+
+  // Distribución de estancias
+  const ed=D.estancia_data.find(d=>d.anio===CY)||{};
+  make('c-estancia-dist',{type:'bar',data:{labels:['1 noche','2 noches','3 noches','4 noches','5 noches','6+ noches'],datasets:[{label:'Reservas',data:[ed['1n'],ed['2n'],ed['3n'],ed['4n'],ed['5n'],ed['6mas']],backgroundColor:['rgba(207,110,110,.6)','rgba(200,164,90,.7)','rgba(106,191,138,.7)','rgba(106,158,207,.6)','rgba(155,126,212,.6)','rgba(90,184,184,.6)'],borderRadius:4}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{},x:{grid:{display:false}}}}});
+
+  // Perfil de reserva anual (avg noches + adultos + ninos%)
+  make('c-perfil',{type:'line',data:{labels:YALL,datasets:[
+    {label:'Estancia media (noches)',data:YALL.map(y=>D.estancia_data.find(d=>d.anio===y)?.avg_noches||0),borderColor:CMAP.gold,tension:.3,yAxisID:'y1',pointRadius:4},
+    {label:'Adultos/reserva',data:YALL.map(y=>D.estancia_data.find(d=>d.anio===y)?.avg_adultos||0),borderColor:CMAP.blue,tension:.3,yAxisID:'y1',pointRadius:4},
+    {label:'% con niños',data:YALL.map(y=>D.estancia_data.find(d=>d.anio===y)?.pct_con_ninos||0),borderColor:CMAP.green,tension:.3,yAxisID:'y2',pointRadius:4,borderDash:[4,3]},
+  ]},options:{responsive:true,plugins:{legend:{position:'top',labels:{boxWidth:10,font:{size:10}}}},scales:{y1:{type:'linear',position:'left',min:0,max:6},y2:{type:'linear',position:'right',min:0,max:25,ticks:{callback:v=>v+'%'},grid:{drawOnChartArea:false}},x:{grid:{display:false}}}}});
+}
+
+// ============================================================
+// ROUTING
+// ============================================================
+function showPage(id,btn){
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('on'));
+  document.getElementById('pg-'+id).classList.add('on');
+  if(btn)btn.classList.add('on');
+  renderPage(id);
+}
+
+function renderPage(id){
+  if(id==='resumen') drawResumen();
+  if(id==='evolucion') drawEvolucion();
+  if(id==='ingresos') drawIngresos();
+  if(id==='canales') drawCanales();
+  if(id==='clientes') drawClientes();
+}
+
+function setYear(y,btn){
+  CY=y;
+  document.querySelectorAll('.yr').forEach(b=>b.classList.remove('on'));
+  if(btn)btn.classList.add('on');
+  const active=document.querySelector('.pg.on')?.id?.replace('pg-','');
+  if(active)renderPage(active);
+}
+
+window.addEventListener('DOMContentLoaded',()=>drawResumen());
+</script>
+</body>
+</html>
