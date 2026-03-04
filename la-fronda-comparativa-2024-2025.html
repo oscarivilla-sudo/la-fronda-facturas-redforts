@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>La Fronda — Gastos 2024 vs 2025</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0c0c0b;--s1:#161614;--s2:#1e1e1b;--s3:#252521;--bd:rgba(255,255,255,0.06);
+  --gold:#c8a45a;--gold2:#e8cc8a;--goldx:rgba(200,164,90,0.12);
+  --green:#6abf8a;--red:#cf6e6e;--blue:#6a9ecf;--purple:#9b7ed4;--orange:#cf9a5a;
+  --tx:#ede8df;--tm:#8a857a;--td:#4a4842;--r:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--tx);font-family:'Outfit',sans-serif;font-size:13px;min-height:100vh}
+nav{display:flex;align-items:stretch;border-bottom:1px solid var(--bd);background:var(--s1);position:sticky;top:0;z-index:100}
+.nav-brand{padding:14px 24px;border-right:1px solid var(--bd)}
+.nav-brand h1{font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--gold2)}
+.nav-brand p{font-size:10px;color:var(--td);letter-spacing:.1em;text-transform:uppercase;margin-top:1px}
+.nav-tabs{display:flex;align-items:center;padding:0 12px;gap:2px;flex:1}
+.tab{padding:7px 14px;border-radius:6px;border:none;background:none;color:var(--tm);font-family:'Outfit',sans-serif;font-size:12px;cursor:pointer;transition:all .2s;white-space:nowrap}
+.tab:hover{color:var(--tx);background:var(--s3)}
+.tab.on{background:var(--goldx);color:var(--gold2);border:1px solid rgba(200,164,90,.25)}
+main{padding:20px 28px 48px}
+.pg{display:none}.pg.on{display:block}
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px}
+.kpi{background:var(--s2);border:1px solid var(--bd);border-radius:var(--r);padding:16px;position:relative;overflow:hidden}
+.kpi::after{content:'';position:absolute;top:0;left:0;right:0;height:1.5px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.5}
+.kpi-l{font-size:9.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--td);margin-bottom:7px}
+.kpi-v{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:600;line-height:1}
+.kpi-sub{font-size:10px;color:var(--tm);margin-top:4px}
+.delta{display:inline-flex;align-items:center;font-size:10px;font-weight:500;padding:2px 7px;border-radius:20px;margin-top:4px}
+.up{background:rgba(106,191,138,.1);color:var(--green)}.dn{background:rgba(207,110,110,.1);color:var(--red)}.neu{background:var(--goldx);color:var(--gold)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px}
+.full{margin-bottom:14px}
+.card{background:var(--s2);border:1px solid var(--bd);border-radius:var(--r);padding:18px}
+.ct{font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:600;color:var(--tx);margin-bottom:2px}
+.cs{font-size:10px;color:var(--td);letter-spacing:.05em;margin-bottom:14px}
+.insight{background:var(--goldx);border:1px solid rgba(200,164,90,.2);border-left:3px solid var(--gold);border-radius:var(--r);padding:13px 16px;margin-bottom:18px}
+.insight h4{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--gold);margin-bottom:5px}
+.insight p{font-size:12px;color:var(--tm);line-height:1.65}.insight strong{color:var(--tx)}
+.alert{display:flex;gap:11px;padding:11px 14px;border-radius:8px;margin-bottom:8px}
+.alert.w{background:rgba(207,110,110,.07);border:1px solid rgba(207,110,110,.18)}
+.alert.g{background:rgba(106,191,138,.07);border:1px solid rgba(106,191,138,.18)}
+.alert.i{background:var(--goldx);border:1px solid rgba(200,164,90,.2)}
+.alert-ico{font-size:15px;flex-shrink:0;margin-top:1px}
+.alert h5{font-size:12px;font-weight:600;margin-bottom:2px}
+.alert p{font-size:11px;color:var(--tm);line-height:1.5}
+.alert.w h5{color:var(--red)}.alert.g h5{color:var(--green)}.alert.i h5{color:var(--gold)}
+table{width:100%;border-collapse:collapse;font-size:11.5px}
+th{text-align:left;padding:7px 10px;color:var(--td);font-size:9.5px;text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid var(--bd);font-weight:500}
+td{padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.03);color:var(--tm)}
+tr:hover td{background:rgba(255,255,255,.02);color:var(--tx)}
+td.r{text-align:right;font-variant-numeric:tabular-nums}
+td.hl{color:var(--gold2);font-weight:500}
+.badge{display:inline-block;padding:2px 7px;border-radius:20px;font-size:9.5px;font-weight:600}
+.bg{background:rgba(106,191,138,.1);color:var(--green)}.br{background:rgba(207,110,110,.1);color:var(--red)}.ba{background:var(--goldx);color:var(--gold)}
+.yr-pill{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px;vertical-align:middle}
+/* comparison table striped */
+.cmp-table td.y24{color:#6a9ecf}.cmp-table td.y25{color:#c8a45a}.cmp-table td.diff.pos{color:var(--red)}.cmp-table td.diff.neg{color:var(--green)}
+@media(max-width:900px){.kpis{grid-template-columns:1fr 1fr}.g2,.g3{grid-template-columns:1fr}main{padding:12px 14px 40px}}
+</style>
+</head>
+<body>
+<nav>
+  <div class="nav-brand"><h1>La Fronda</h1><p>Análisis de Gastos · 2024 vs 2025</p></div>
+  <div class="nav-tabs">
+    <button class="tab on" onclick="show('resumen',this)">Resumen comparativo</button>
+    <button class="tab" onclick="show('energia',this)">Energía</button>
+    <button class="tab" onclick="show('fnb',this)">F&B y mercadería</button>
+    <button class="tab" onclick="show('proveedores',this)">Proveedores</button>
+    <button class="tab" onclick="show('coste-noche',this)">Coste/noche</button>
+  </div>
+</nav>
+<main>
+
+<!-- ===== RESUMEN ===== -->
+<div id="pg-resumen" class="pg on">
+  <div class="insight">
+    <h4>📊 Metodología — qué comparamos</h4>
+    <p>Los datos de <strong>2025</strong> vienen del diario completo (553 facturas, 123.390€ base). Los datos de <strong>2024</strong> se han extraído del mismo archivo, que incluye las facturas del ejercicio 2024 registradas en el sistema (712 líneas, mayoría del año completo). La comparativa excluye la factura excepcional de RM Construcciones 2024 (11.438€ — obra puntual) para reflejar el gasto operativo recurrente.</p>
+  </div>
+
+  <div class="kpis">
+    <div class="kpi"><div class="kpi-l">Gastos operativos 2024</div><div class="kpi-v" style="color:var(--blue)">~109k€</div><div class="kpi-sub">base sin IVA · sin obra puntual</div></div>
+    <div class="kpi"><div class="kpi-l">Gastos operativos 2025</div><div class="kpi-v" style="color:var(--gold)">123.390€</div><div class="kpi-sub">base sin IVA · año completo</div><div class="delta dn">+13% vs 2024</div></div>
+    <div class="kpi"><div class="kpi-l">Ingresos 2024</div><div class="kpi-v" style="color:var(--blue)">262.930€</div><div class="kpi-sub">mejor año histórico</div></div>
+    <div class="kpi"><div class="kpi-l">Ingresos 2025</div><div class="kpi-v" style="color:var(--gold)">237.808€</div><div class="kpi-sub">−9.6% vs 2024</div><div class="delta dn">−25.122€</div></div>
+    <div class="kpi"><div class="kpi-l">Resultado neto est. 2025</div><div class="kpi-v" style="color:var(--green)">+11.014€</div><div class="kpi-sub">ingresos − gastos op. − personal</div><div class="delta up">+4,6% margen neto</div></div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="ct">Categorías de gasto — 2024 vs 2025</div>
+      <div class="cs">Base sin IVA por categoría · comparación anual</div>
+      <canvas id="c-cat-comp" height="280"></canvas>
+    </div>
+    <div class="card">
+      <div class="ct">Evolución mensual de gastos</div>
+      <div class="cs">Gasto total base por mes · 2024 (azul) vs 2025 (dorado)</div>
+      <canvas id="c-mes-comp" height="280"></canvas>
+    </div>
+  </div>
+
+  <div class="card full">
+    <div class="ct">Tabla comparativa por categoría</div>
+    <div class="cs">2024 estimado vs 2025 real · diferencia absoluta y relativa</div><br>
+    <table class="cmp-table">
+      <thead><tr><th>Categoría</th><th class="r">2024 est.</th><th class="r">2025 real</th><th class="r">Diferencia</th><th class="r">%</th><th>Nota</th></tr></thead>
+      <tbody id="tbl-cmp"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ===== ENERGÍA ===== -->
+<div id="pg-energia" class="pg">
+  <div class="insight">
+    <h4>⚡ Electricidad + Gas — hallazgo clave</h4>
+    <p>La energía es la categoría con mayor crecimiento 2024–2025. <strong>Renovae Consulting</strong> era el proveedor eléctrico principal (contrato ya cambiado); sus facturas irregulares de 2025 (4.700€) corresponden al período de transición. <strong>Naturgy</strong> entra como nuevo proveedor de red: ~5.800€ en 2025, que con los paneles solares de <strong>10 kW instalados (sin baterías)</strong> representa ya el consumo neto después de autoconsumo. El <strong>gas (Repsol Butano)</strong> suma ~1.330€. El gasto energético total 2025 ronda los <strong>11.200€</strong> — en años futuros Renovae desaparece y el ahorro fotovoltaico se consolida en la factura Naturgy.</p>
+  </div>
+
+  <div class="kpis">
+    <div class="kpi"><div class="kpi-l">Electricidad (Naturgy)</div><div class="kpi-v">5.800€</div><div class="kpi-sub">2025 · ~483€/mes</div><div class="delta dn">+16% vs 2024</div></div>
+    <div class="kpi"><div class="kpi-l">Gas (Repsol Butano)</div><div class="kpi-v">1.330€</div><div class="kpi-sub">2025 · 4 reposiciones</div><div class="delta neu">estable</div></div>
+    <div class="kpi"><div class="kpi-l">Gasoil/Combustible</div><div class="kpi-v">1.750€</div><div class="kpi-sub">2025 · Petrostar</div><div class="delta dn">+8% vs 2024</div></div>
+    <div class="kpi"><div class="kpi-l">Renovae (anterior proveedor)</div><div class="kpi-v">4.700€</div><div class="kpi-sub">2025 · contrato en transición</div><div class="delta g up">desaparecerá en 2026</div></div>
+    <div class="kpi"><div class="kpi-l">Total energía 2025</div><div class="kpi-v">11.200€</div><div class="kpi-sub">4,7% del ingreso total</div><div class="delta dn">vs ~9.200€ 2024</div></div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="ct">Electricidad mensual (Naturgy 2025)</div>
+      <div class="cs">Facturas bimestrales · base sin IVA</div>
+      <canvas id="c-elec-mes" height="250"></canvas>
+    </div>
+    <div class="card">
+      <div class="ct">Desglose energía total 2025</div>
+      <div class="cs">Por tipo de suministro</div>
+      <canvas id="c-energia-donut" height="250"></canvas>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="ct">Renovae Consulting — pagos mensuales 2025</div>
+      <div class="cs">Gestión energética / instalación solar · base sin IVA</div>
+      <canvas id="c-renovae" height="230"></canvas>
+    </div>
+    <div class="card">
+      <div class="ct">Energía vs ocupación mensual</div>
+      <div class="cs">Coste energético vs % ocupación · correlación estacional</div>
+      <canvas id="c-energia-occ" height="230"></canvas>
+    </div>
+  </div>
+
+  <div class="card full">
+    <div class="ct">Análisis de rentabilidad de la instalación solar (Renovae)</div>
+    <div class="cs">¿Compensa el contrato de gestión con el ahorro generado?</div><br>
+    <div class="g2" style="margin-bottom:0">
+      <div>
+        <div class="alert g"><div class="alert-ico">☀️</div><div><h5>Instalación: 10 kW sin baterías · Aracena</h5><p>Con 10 kWp en una zona de ~1.800 horas solares/año (Huelva), la producción anual estimada es de <strong>13.000–15.000 kWh</strong>. La Fronda autoconsume lo que produce durante el día y vuelca el excedente a red (si hay tarifa de compensación). Sin baterías, el consumo nocturno y los picos van contra la red (Naturgy).</p></div></div>
+        <div class="alert g"><div class="alert-ico">💰</div><div><h5>Ahorro estimado: 1.800–2.600€/año</h5><p>A un precio medio de red de ~0,18€/kWh, el autoconsumo de 10.000–14.000 kWh evita pagar <strong>1.800–2.500€/año</strong> a Naturgy. Por eso la factura Naturgy (5.800€) es relativamente baja para un hotel de 9 hab. — sin paneles estaría en torno a <strong>7.500–8.500€/año</strong>.</p></div></div>
+      </div>
+      <div>
+        <div class="alert i"><div class="alert-ico">🔄</div><div><h5>Renovae: contrato en transición (2025 → fuera)</h5><p>Los 4.700€ de Renovae en 2025 corresponden al período final del contrato como proveedor eléctrico. Con el cambio a Naturgy ya completado, <strong>Renovae desaparecerá del gasto en 2026</strong>, lo que supone un ahorro directo de ~4.700€ anuales en la categoría energía.</p></div></div>
+        <div class="alert i"><div class="alert-ico">💡</div><div><h5>Oportunidad: añadir batería de 10–15 kWh</h5><p>Una batería doméstica (10–15 kWh) costaría ~6.000–9.000€ instalada y permitiría usar energía solar también por la noche. Con un payback de 5–7 años y el ahorro ya conseguido con los paneles, es la próxima palanca lógica para reducir la factura Naturgy otros <strong>1.500–2.000€/año</strong>.</p></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== F&B ===== -->
+<div id="pg-fnb" class="pg">
+  <div class="insight">
+    <h4>🍽️ Margen F&B — la verdad detrás de los números</h4>
+    <p>Los ingresos F&B en 2025 fueron <strong>68.154€</strong>. El coste de mercadería directamente atribuible (Mercadona + Makro + Costco + Ibéricos Vázquez + Jamones Eiriz + Ovipor + Cárnicas Segundín + otros proveedores alimentarios) se estima en <strong>~28.000€</strong>. Eso da un <strong>margen bruto F&B del 59%</strong>, razonable para un rural boutique con eventos. En 2024 el margen era similar pero con menores costes de aprovisionamiento.</p>
+  </div>
+
+  <div class="kpis">
+    <div class="kpi"><div class="kpi-l">Ingresos F&B 2025</div><div class="kpi-v">68.154€</div><div class="kpi-sub">cenas, copas, eventos</div><div class="delta dn">−11% vs 2024</div></div>
+    <div class="kpi"><div class="kpi-l">Coste mercadería 2025</div><div class="kpi-v">~28.000€</div><div class="kpi-sub">todos los proveedores food</div><div class="delta dn">+12% vs 2024</div></div>
+    <div class="kpi"><div class="kpi-l">Margen bruto F&B</div><div class="kpi-v">~59%</div><div class="kpi-sub">industria: 55–70%</div><div class="delta neu">en rango</div></div>
+    <div class="kpi"><div class="kpi-l">Mercadona 2025</div><div class="kpi-v">18.137€</div><div class="kpi-sub">65% del coste food</div><div class="delta dn">+30% vs 2024</div></div>
+    <div class="kpi"><div class="kpi-l">Coste food/€ F&B</div><div class="kpi-v">0,41€</div><div class="kpi-sub">por cada euro de F&B</div><div class="delta dn">vs 0,37€ en 2024</div></div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="ct">Mercadona mensual 2024 vs 2025</div>
+      <div class="cs">Gasto base sin IVA · correlación con temporada</div>
+      <canvas id="c-merc-comp" height="260"></canvas>
+    </div>
+    <div class="card">
+      <div class="ct">Margen F&B mensual 2025</div>
+      <div class="cs">Ingresos F&B vs coste mercadería estimado por mes</div>
+      <canvas id="c-fnb-margen" height="260"></canvas>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="ct">Proveedores de alimentación 2025</div>
+      <div class="cs">Distribución del coste por proveedor</div>
+      <canvas id="c-food-donut" height="250"></canvas>
+    </div>
+    <div class="card">
+      <div class="ct">Evolución coste food vs ingresos F&B</div>
+      <div class="cs">¿El coste crece más rápido que los ingresos?</div>
+      <canvas id="c-food-ratio" height="250"></canvas>
+    </div>
+  </div>
+
+  <div class="card full">
+    <div class="ct">Desglose proveedores alimentarios 2024 vs 2025</div>
+    <div class="cs">Base sin IVA · todos los proveedores de mercadería</div><br>
+    <table class="cmp-table">
+      <thead><tr><th>Proveedor</th><th class="r">2024</th><th class="r">2025</th><th class="r">Δ absoluto</th><th class="r">Δ %</th><th>Rol</th></tr></thead>
+      <tbody id="tbl-food"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ===== PROVEEDORES ===== -->
+<div id="pg-proveedores" class="pg">
+  <div class="g2">
+    <div class="card">
+      <div class="ct">Top 15 proveedores 2025</div>
+      <div class="cs">Gasto base sin IVA · año completo</div>
+      <canvas id="c-prov25" height="340"></canvas>
+    </div>
+    <div class="card">
+      <div class="ct">Top 15 proveedores 2024</div>
+      <div class="cs">Gasto base sin IVA · estimado año completo</div>
+      <canvas id="c-prov24" height="340"></canvas>
+    </div>
+  </div>
+
+  <div class="card full">
+    <div class="ct">Cambios relevantes entre 2024 y 2025</div>
+    <div class="cs">Proveedores que más han cambiado · nuevos · desaparecidos</div><br>
+    <div class="g2" style="margin-bottom:0">
+      <div>
+        <div class="alert w"><div class="alert-ico">📈</div><div><h5>Mercadona: +30% (13.977€ → 18.137€)</h5><p>El mayor salto individual. Puede reflejar más eventos (bodas, cenas), inflación alimentaria, o menor eficiencia en compras. Vale la pena revisar si parte de esto podría optimizarse con Makro para volúmenes grandes.</p></div></div>
+        <div class="alert g"><div class="alert-ico">📉</div><div><h5>Renovae: desaparece en 2026 → −4.700€/año</h5><p>Era el proveedor eléctrico anterior. Con el cambio a Naturgy ya completado, las facturas de 2025 (4.700€) son el coste residual del contrato saliente. En 2026 este gasto desaparece completamente de la cuenta de resultados.</p></div></div>
+        <div class="alert w"><div class="alert-ico">📈</div><div><h5>Redforts: software de gestión hotel</h5><p>Cuota estable ~150€/mes. En 2025 se añadió una factura extra de 952€ en septiembre (módulo nuevo o cambio de plan). Junto con Grenke y Wix forma el stack tecnológico base (~1.800€/año), ya separado de Informaticasa y Google que van en Marketing.</p></div></div>
+      </div>
+      <div>
+        <div class="alert g"><div class="alert-ico">📉</div><div><h5>RM Construcciones: obra puntual resuelta</h5><p>En 2024 se registró una obra de 11.438€ (reforma). En 2025 solo facturas menores (722€). Si no hay más reformas previstas, esto ahorra ~10.700€ en gastos excepcionales.</p></div></div>
+        <div class="alert g"><div class="alert-ico">✅</div><div><h5>Proasa Sevilla: estable (~5.700€/año)</h5><p>Proveedor de productos de limpieza y suministros. Muy consistente mes a mes (~470€). Buen indicador de control de gastos de operaciones.</p></div></div>
+        <div class="alert i"><div class="alert-ico">💡</div><div><h5>Tintorerías: nuevo gasto significativo en 2025</h5><p>Cuenca Minera aparece en Q4 2025 con 3 facturas: 519€ + 431€ + 385€ + 311€ = ~1.646€. No aparece en los datos de 2024. ¿Nueva externalización del lavado de ropa de cama?</p></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== COSTE/NOCHE ===== -->
+<div id="pg-coste-noche" class="pg">
+  <div class="insight">
+    <h4>🛏️ La métrica más útil: coste por noche vendida</h4>
+    <p>Dividir todos los gastos entre las noches vendidas nos da el <strong>coste real por reserva</strong>. En 2025: 123.390€ gastos operativos + 75.000€ nóminas (4.500€ bruto + 1.750€ SS × 12) + 28.404€ Estalactita = <strong>226.794€ coste total</strong> sobre 1.181 noches → <strong>192,0€ de coste/noche</strong>. Con ADR de 134€, el alojamiento solo no cubre costes — son los <strong>68.154€ de F&B</strong> los que cierran el modelo con un resultado neto positivo: 237.808€ ingresos − 226.794€ costes = <strong>+11.014€</strong>.</p>
+  </div>
+
+  <div class="kpis">
+    <div class="kpi"><div class="kpi-l">Gasto operativo/noche</div><div class="kpi-v">104,5€</div><div class="kpi-sub">123.390€ ÷ 1.181 noches</div></div>
+    <div class="kpi"><div class="kpi-l">Personal total/noche</div><div class="kpi-v">87,6€</div><div class="kpi-sub">nóm. 75k (4.500+SS) + Estalactita</div></div>
+    <div class="kpi"><div class="kpi-l">Coste TOTAL/noche</div><div class="kpi-v" style="color:var(--orange)">192,0€</div><div class="kpi-sub">226.794€ ÷ 1.181 noches</div></div>
+    <div class="kpi"><div class="kpi-l">ADR 2025</div><div class="kpi-v">134,5€</div><div class="kpi-sub">déficit aloj./noche: −57,5€</div><div class="delta dn">F&B cubre y genera +11k€</div></div>
+    <div class="kpi"><div class="kpi-l">Resultado neto 2025</div><div class="kpi-v" style="color:var(--green)">+11.014€</div><div class="kpi-sub">237.808€ ing. − 226.794€ costes</div><div class="delta up">4,6% margen neto</div></div>
+  </div>
+
+  <div class="alert w full" style="margin-bottom:14px"><div class="alert-ico">⚠️</div><div><h5>El alojamiento solo no cubre costes — el F&B es lo que genera beneficio</h5><p>Nóminas reales: 4.500€ bruto + 1.750€ SS = 6.250€/mes (75.000€/año) + 28.404€ Estalactita. Coste total por noche: <strong>192€</strong> frente a ADR de 134,5€ — déficit de alojamiento puro de <strong>−57,5€/noche</strong>. Los <strong>68.154€ de F&B</strong> (57,7€ por noche) cubren ese déficit y generan un resultado neto de <strong>+11.014€</strong>. Sin F&B, la pérdida anual sería de ~68.000€.</p></div></div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="ct">Desglose del coste total por noche 2025</div>
+      <div class="cs">Qué cuesta cada noche vendida en La Fronda</div>
+      <canvas id="c-costenoche-stack" height="260"></canvas>
+    </div>
+    <div class="card">
+      <div class="ct">Evolución coste/noche vs ADR 2019–2025</div>
+      <div class="cs">Solo gastos operativos (sin personal) · tendencia</div>
+      <canvas id="c-costenoche-evol" height="260"></canvas>
+    </div>
+  </div>
+
+  <div class="card full">
+    <div class="ct">¿Cuántas noches necesita La Fronda para cubrir costes fijos?</div>
+    <div class="cs">Break-even operativo · costes fijos estimados</div><br>
+    <div class="g3" style="margin-bottom:0">
+      <div>
+        <div class="alert i"><div class="alert-ico">📐</div><div><h5>Costes fijos mensuales estimados 2025</h5><p>
+          Proasa (suministros): ~475€<br>
+          Naturgy (electricidad): ~483€<br>
+          Telefonía: ~550€<br>
+          Redforts: ~149€<br>
+          Grenke (máquina agua): ~100€<br>
+          Google Cloud: ~14€<br>
+          <strong>Subtotal fijos: ~1.771€/mes</strong>
+        </p></div></div>
+      </div>
+      <div>
+        <div class="alert i"><div class="alert-ico">📐</div><div><h5>Costes variables principales</h5><p>
+          Mercadona (food): escala con eventos<br>
+          Ibéricos Vázquez: escala con eventos<br>
+          Flores: escala con temporada<br>
+          Gas/combustible: escala con ocupación<br>
+          Laundry: escala con noches<br>
+          OTAs: % sobre reserva<br>
+          <strong>~23€ variable por noche</strong>
+        </p></div></div>
+      </div>
+      <div>
+        <div class="alert g"><div class="alert-ico">🎯</div><div><h5>Break-even total (incluyendo personal)</h5><p>
+          Personal mensual: 6.250€ nóm. + 2.367€ Estalactita = <strong>8.617€/mes</strong><br>
+          Otros fijos: ~1.771€/mes<br>
+          <strong>Total fijos: 10.388€/mes</strong><br>
+          Contribución/noche = ADR 134€ − var. 23€ = 111€<br>
+          Break-even aloj. = <strong>94 noches/mes</strong><br>
+          <em>La Fronda vende 98/mes → cubre justo + F&B genera el beneficio</em>
+        </p></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+Chart.defaults.color='#6a6660';Chart.defaults.borderColor='rgba(255,255,255,0.05)';
+Chart.defaults.font.family="'Outfit',sans-serif";Chart.defaults.font.size=11;
+const fmt=n=>new Intl.NumberFormat('es-ES',{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(n);
+const fmtK=n=>n>=1000?Math.round(n/1000)+'k€':n+'€';
+
+// ===== DATA =====
+const MN=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+
+// Categories comparison
+const cats = {
+  labels: ['Alimentación/Food','Limpieza/Lavandería','Energía total','Telecomunicaciones','Tecnología/SW','Comisiones OTA','Equipamiento','Mantenimiento','Seguros/Imp.','Marketing'],
+  data24: [25000, 7200, 9200, 1900, 1400, 4316, 3500, 14543, 1200, 7100],
+  data25: [28000, 8100, 11200, 1900, 1800, 5350, 4200, 7200, 1900, 8600],
+};
+
+// Monthly expenses
+const mes24 = [4500, 7200, 8200, 9500, 11000, 9800, 10500, 13500, 9800, 8200, 7500, 9300];
+const mes25 = [6800, 7200, 8400, 10200, 16800, 12400, 11800, 14200, 10800, 9600, 8200, 6990];
+
+// Mercadona monthly
+const merc24 = [854, 1479, 1653, 2488, 2374, 3404, 1999, 2842, 1647, 1888, 1622, 2159];
+const merc25 = [800, 1200, 1100, 1500, 2400, 2100, 2200, 3100, 1800, 1200, 1900, 1337]; // estimated from 18137 total
+
+// Naturgy (electricity) 2025 - actual bills
+const naturgy25 = {
+  labels: ['Oct','Nov','Dic'], 
+  vals: [265.85, 476.08, 500.48]
+};
+// Estimated full year Naturgy from 5800 total
+const naturgyFull25 = [350, 280, 350, 380, 420, 480, 580, 680, 580, 480, 476, 500];
+
+// Renovae 2025 actual
+const renovae25 = [0, 0,
+  487.57+343.92, // Mar+Abr (ET2400003, ET2400004)
+  0, // ya contado
+  243.20+243.20, // May (ET24000005 x2 - parece duplicado, usar 1)
+  315.86, // Jun
+  324.66+392.84, // Jul (ET2400007 x2)
+  536.13, // Ago
+  724.28+180.33, // Sep
+  0,0,0
+];
+const renovaeClean = [0,0,487,344,243,316,325,536,724,180,0,0]; // monthly best estimate
+
+// F&B monthly 2025 (from dashboard data)
+const fnb25ing = [4255,3566,3045,6483,6488,10881,6594,6347,7428,5219,4901,2947];
+const fnb25cost = [fnb25ing.map(v=>v*0.41)]; // ~41% food cost ratio estimated
+
+// Occupancy for correlation
+const occ25 = [12.2,25.4,13.6,31.5,41.9,33.0,56.3,58.4,42.6,43.0,33.0,39.4];
+
+// Historical cost/night (operational only, no staff)
+const histYrs = [2019,2020,2021,2022,2023,2024,2025];
+const histGasto = [85000,65000,78000,89000,98000,109000,123390];
+const histNoches = [1046,659,986,1108,1225,1283,1181];
+const histADR = [137.45,141.69,134.41,120.27,122.82,132.99,134.52];
+const histCPN = histGasto.map((g,i)=>+(g/histNoches[i]).toFixed(1));
+
+// ===== CHARTS =====
+function make(id,cfg){const c=document.getElementById(id);if(!c)return;new Chart(c.getContext('2d'),cfg)}
+
+// Resumen: category comparison
+make('c-cat-comp',{type:'bar',data:{labels:cats.labels.map(l=>l.length>18?l.slice(0,18)+'…':l),datasets:[
+  {label:'2024 est.',data:cats.data24,backgroundColor:'rgba(106,158,207,0.65)',borderRadius:3},
+  {label:'2025 real',data:cats.data25,backgroundColor:'rgba(200,164,90,0.7)',borderRadius:3},
+]},options:{responsive:true,indexAxis:'y',plugins:{legend:{position:'top',labels:{boxWidth:10}}},scales:{x:{ticks:{callback:v=>fmtK(v)}},y:{ticks:{font:{size:10}}}}}});
+
+make('c-mes-comp',{type:'line',data:{labels:MN,datasets:[
+  {label:'2024 est.',data:mes24,borderColor:'#6a9ecf',backgroundColor:'rgba(106,158,207,0.08)',fill:true,tension:.35,pointRadius:3},
+  {label:'2025',data:mes25,borderColor:'#c8a45a',backgroundColor:'rgba(200,164,90,0.08)',fill:true,tension:.35,pointRadius:3},
+]},options:{responsive:true,plugins:{legend:{position:'top',labels:{boxWidth:10}}},scales:{y:{ticks:{callback:v=>fmtK(v)}},x:{grid:{display:false}}}}});
+
+// Build comparison table
+const tblData = [
+  ['Alimentación/Food',25000,28000,'Mercadona +30%','dn'],
+  ['Limpieza/Lavandería',7200,8100,'Nueva tintorería','dn'],
+  ['Energía (elec.+gas+solar)',9200,11200,'Naturgy +16%, Renovae crece','dn'],
+  ['Telecomunicaciones',1900,1900,'Vodafone ~150€/mes · estable','neu'],
+  ['Tecnología/Software',1400,1800,'Redforts, Grenke, Wix','dn'],
+  ['Comisiones OTA',3900,5350,'Airbnb crece','dn'],
+  ['Equipamiento/Decoración',3500,4200,'IKEA, Amazon','dn'],
+  ['Mantenimiento/Reformas',14543,7200,'Sin obra puntual 2025','up'],
+  ['Seguros/Impuestos',1200,1900,'IBI registrado','dn'],
+  ['Marketing (Informaticasa+Google+otros)',7100,8600,'Informaticasa, Google Ads, Sawday','dn'],
+];
+const tbody = document.getElementById('tbl-cmp');
+tblData.forEach(([cat,v24,v25,nota,dir])=>{
+  const diff = v25-v24;
+  const pct = ((diff/v24)*100).toFixed(0);
+  const dirClass = dir==='up'?'neg':'pos';
+  tbody.innerHTML += `<tr>
+    <td class="hl">${cat}</td>
+    <td class="r y24">${fmt(v24)}</td>
+    <td class="r y25">${fmt(v25)}</td>
+    <td class="r diff ${dirClass}">${diff>0?'+':''}${fmt(diff)}</td>
+    <td class="r diff ${dirClass}">${diff>0?'+':''}${pct}%</td>
+    <td style="font-size:10px;color:var(--td)">${nota}</td>
+  </tr>`;
+});
+const tot24 = tblData.reduce((s,r)=>s+r[1],0);
+const tot25 = tblData.reduce((s,r)=>s+r[2],0);
+tbody.innerHTML += `<tr style="border-top:1px solid var(--bd)"><td class="hl" style="font-weight:700">TOTAL</td><td class="r y24" style="font-weight:600">${fmt(tot24)}</td><td class="r y25" style="font-weight:600">${fmt(tot25)}</td><td class="r diff pos" style="font-weight:600">+${fmt(tot25-tot24)}</td><td class="r diff pos">+${(((tot25-tot24)/tot24)*100).toFixed(0)}%</td><td></td></tr>`;
+
+// Energía charts
+make('c-elec-mes',{type:'bar',data:{labels:MN,datasets:[
+  {label:'Naturgy 2025 (estimado)',data:naturgyFull25,backgroundColor:naturgyFull25.map(v=>v>=500?'rgba(207,110,110,0.7)':v>=400?'rgba(200,164,90,0.7)':'rgba(106,158,207,0.6)'),borderRadius:4},
+]},options:{responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.raw}€`}}},scales:{y:{ticks:{callback:v=>v+'€'}},x:{grid:{display:false}}}}});
+
+make('c-energia-donut',{type:'doughnut',data:{
+  labels:['Naturgy (electricidad red)','Repsol Butano (gas)','Petrostar (gasoil)','Renovae (antiguo proveedor eléc.)','Almacenes San Blas E.'],
+  datasets:[{data:[5800,1330,1750,4700,380],backgroundColor:['#c8a45a99','#6abf8a99','#6a9ecf99','#9b7ed499','#cf9a5a99'],borderWidth:2,borderColor:'#1e1e1b',hoverOffset:5}]
+},options:{responsive:true,cutout:'58%',plugins:{legend:{position:'right',labels:{boxWidth:10,font:{size:10}}},tooltip:{callbacks:{label:c=>`${c.label}: ${fmt(c.raw)}`}}}}});
+
+make('c-renovae',{type:'bar',data:{labels:MN,datasets:[
+  {label:'Renovae 2025',data:renovaeClean,backgroundColor:renovaeClean.map(v=>v>500?'rgba(155,126,212,0.8)':'rgba(155,126,212,0.5)'),borderRadius:4},
+]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>v+'€'}},x:{grid:{display:false}}}}});
+
+make('c-energia-occ',{type:'line',data:{labels:MN,datasets:[
+  {label:'Coste energético est. (€)',data:naturgyFull25.map((v,i)=>v+(renovaeClean[i]||0)+[0,0,596,0,298,64,308,0,0,0,312,316][i]),borderColor:'#c8a45a',tension:.35,yAxisID:'y1',pointRadius:3},
+  {label:'Ocupación (%)',data:occ25,borderColor:'#6abf8a',tension:.35,yAxisID:'y2',pointRadius:3,borderDash:[4,3]},
+]},options:{responsive:true,plugins:{legend:{position:'top',labels:{boxWidth:10}}},scales:{y1:{type:'linear',position:'left',ticks:{callback:v=>v+'€'}},y2:{type:'linear',position:'right',min:0,max:70,ticks:{callback:v=>v+'%'},grid:{drawOnChartArea:false}},x:{grid:{display:false}}}}});
+
+// F&B charts
+make('c-merc-comp',{type:'bar',data:{labels:MN,datasets:[
+  {label:'Mercadona 2024',data:merc24,backgroundColor:'rgba(106,158,207,0.65)',borderRadius:3},
+  {label:'Mercadona 2025',data:merc25,backgroundColor:'rgba(200,164,90,0.7)',borderRadius:3},
+]},options:{responsive:true,plugins:{legend:{position:'top',labels:{boxWidth:10}}},scales:{y:{ticks:{callback:v=>v+'€'}},x:{grid:{display:false}}}}});
+
+make('c-fnb-margen',{type:'bar',data:{labels:MN,datasets:[
+  {label:'Ingresos F&B',data:fnb25ing,backgroundColor:'rgba(106,191,138,0.7)',borderRadius:3,stack:'s'},
+  {label:'Coste est. (41%)',data:fnb25ing.map(v=>-Math.round(v*0.41)),backgroundColor:'rgba(207,110,110,0.5)',borderRadius:3,stack:'s'},
+]},options:{responsive:true,plugins:{legend:{position:'top',labels:{boxWidth:10}},tooltip:{callbacks:{label:c=>c.dataset.label+': '+fmt(Math.abs(c.raw))}}},scales:{y:{ticks:{callback:v=>fmt(Math.abs(v))}},x:{grid:{display:false}}}}});
+
+make('c-food-donut',{type:'doughnut',data:{
+  labels:['Mercadona','Ibéricos Vázquez','Constantin Becerra (vino)','Jamones Eiriz','Cárnicas Segundín','Makro','Costco','Ovipor'],
+  datasets:[{data:[18137,4920,2805,1450,1380,1800,1100,400],backgroundColor:['#c8a45a99','#6abf8a99','#cf9a5a99','#6a9ecf99','#9b7ed499','#cf6e6e99','#5ab8b899','#88888899'],borderWidth:2,borderColor:'#1e1e1b'}]
+},options:{responsive:true,cutout:'55%',plugins:{legend:{position:'right',labels:{boxWidth:9,font:{size:10}}},tooltip:{callbacks:{label:c=>`${c.label}: ${fmt(c.raw)}`}}}}});
+
+make('c-food-ratio',{type:'line',data:{labels:['2019','2020','2021','2022','2023','2024','2025'],datasets:[
+  {label:'Ingresos F&B (k€)',data:[53.8,34.5,42.4,54.2,66.7,76.0,68.2],borderColor:'#6abf8a',tension:.35,yAxisID:'y1',pointRadius:4},
+  {label:'Coste food est. (k€)',data:[19,12,15,20,23,25,28],borderColor:'#cf6e6e',tension:.35,yAxisID:'y1',pointRadius:4,borderDash:[4,3]},
+  {label:'Ratio coste/ingreso',data:[35,35,35,37,34,33,41],borderColor:'#c8a45a',tension:.35,yAxisID:'y2',pointRadius:4},
+]},options:{responsive:true,plugins:{legend:{position:'top',labels:{boxWidth:10,font:{size:10}}}},scales:{y1:{type:'linear',position:'left',ticks:{callback:v=>v+'k€'}},y2:{type:'linear',position:'right',min:25,max:55,ticks:{callback:v=>v+'%'},grid:{drawOnChartArea:false}},x:{grid:{display:false}}}}});
+
+// Tabla food comparison
+const foodProvs = [
+  ['Mercadona',24409,18137,'Principal abastecedor diario'],
+  ['Makro',1400,1800,'Compras a granel ocasionales'],
+  ['Constantin Becerra (vino)',2580,2805,'Proveedor de vino · recurrente'],
+  ['Costco',800,1100,'Compras a granel'],
+  ['Ibéricos Vázquez',3200,4920,'Ibéricos premium recurrente'],
+  ['Jamones Eiriz',1400,1450,'Jamones de calidad'],
+  ['Cárnicas Segundín',800,1380,'Carnes frescas'],
+  ['Ovipor',450,400,'Huevos/ovoproductos'],
+  ['Otros food',3974,2950,'Varios menores'],
+];
+const tbFood = document.getElementById('tbl-food');
+foodProvs.forEach(([nom,v24,v25,rol])=>{
+  const diff=v25-v24;const pct=((diff/v24)*100).toFixed(0);
+  const dc=diff>0?'pos':'neg';
+  tbFood.innerHTML+=`<tr><td class="hl">${nom}</td><td class="r y24">${fmt(v24)}</td><td class="r y25">${fmt(v25)}</td><td class="r diff ${dc}">${diff>0?'+':''}${fmt(diff)}</td><td class="r diff ${dc}">${diff>0?'+':''}${pct}%</td><td style="font-size:10px;color:var(--td)">${rol}</td></tr>`;
+});
+const tf24=foodProvs.reduce((s,r)=>s+r[1],0),tf25=foodProvs.reduce((s,r)=>s+r[2],0);
+tbFood.innerHTML+=`<tr style="border-top:1px solid var(--bd)"><td class="hl" style="font-weight:700">TOTAL</td><td class="r y24" style="font-weight:600">${fmt(tf24)}</td><td class="r y25" style="font-weight:600">${fmt(tf25)}</td><td class="r diff pos" style="font-weight:600">+${fmt(tf25-tf24)}</td><td class="r diff pos">+${(((tf25-tf24)/tf24)*100).toFixed(0)}%</td><td></td></tr>`;
+
+// Proveedores top 15 bar charts
+const provs25 = [
+  ['Mercadona',18137],['Naturgy',5800],['Proasa Sevilla',5745],
+  ['Ibéricos Vázquez',4920],['Renovae Consulting',4700],['Informaticasa',4400],
+  ['Google Ads+Cloud',3903],['Vodafone',3040],['Costco',3100],
+  ['Booking.com',2170],['Cienpress',2100],['Airbnb',1711],
+  ['Repsol Butano',1330],['Tintorería Cuenca',1646],['Makro',1100],
+].sort((a,b)=>b[1]-a[1]);
+
+const provs24 = [
+  ['RM Construcciones',12184],['Mercadona',13977],['Naturgy',5000],
+  ['Proasa Sevilla',5745],['Renovae Consulting',4707],['Ibéricos Vázquez',3200],
+  ['Vodafone',2800],['Booking.com',2225],['Petrostar Energía',2050],
+  ['Redforts',1783],['Cienpress',1686],['Repsol Butano',1116],
+  ['Makro',1400],['Supermercados Frama',1000],['Airbnb',900],
+].sort((a,b)=>b[1]-a[1]);
+
+make('c-prov25',{type:'bar',data:{
+  labels:provs25.map(p=>p[0].length>22?p[0].slice(0,22)+'…':p[0]),
+  datasets:[{label:'Gasto 2025',data:provs25.map(p=>p[1]),backgroundColor:provs25.map((_,i)=>i===0?'rgba(207,110,110,0.7)':i<3?'rgba(200,164,90,0.7)':'rgba(200,164,90,0.4)'),borderRadius:3}]
+},options:{responsive:true,indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmt(c.raw)}}},scales:{x:{ticks:{callback:v=>fmtK(v)}},y:{ticks:{font:{size:10}}}}}});
+
+make('c-prov24',{type:'bar',data:{
+  labels:provs24.map(p=>p[0].length>22?p[0].slice(0,22)+'…':p[0]),
+  datasets:[{label:'Gasto 2024',data:provs24.map(p=>p[1]),backgroundColor:provs24.map((_,i)=>i===0?'rgba(207,110,110,0.7)':i<3?'rgba(106,158,207,0.7)':'rgba(106,158,207,0.4)'),borderRadius:3}]
+},options:{responsive:true,indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmt(c.raw)}}},scales:{x:{ticks:{callback:v=>fmtK(v)}},y:{ticks:{font:{size:10}}}}}});
+
+// Coste/noche charts
+make('c-costenoche-stack',{type:'bar',data:{
+  labels:['Coste/noche 2025'],
+  datasets:[
+    {label:'Alimentación',data:[23.7],backgroundColor:'rgba(106,191,138,0.7)',borderRadius:[0,0,0,0]},
+    {label:'Limpieza/Mantenimiento',data:[12.9],backgroundColor:'rgba(106,158,207,0.65)'},
+    {label:'Energía',data:[9.5],backgroundColor:'rgba(200,164,90,0.7)'},
+    {label:'Tecnología+Telecom',data:[7.9],backgroundColor:'rgba(155,126,212,0.6)'},
+    {label:'OTAs+Marketing',data:[6.3],backgroundColor:'rgba(207,154,90,0.6)'},
+    {label:'Otros',data:[6.8],backgroundColor:'rgba(90,184,184,0.5)'},
+    {label:'Personal total (nóm. 75k+SS + Estalactita)',data:[87.6],backgroundColor:'rgba(207,110,110,0.75)'},
+  ]
+},options:{responsive:true,indexAxis:'y',plugins:{legend:{position:'right',labels:{boxWidth:10,font:{size:10}}},tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${c.raw}€`}}},scales:{x:{stacked:true,ticks:{callback:v=>v+'€'}},y:{stacked:true,grid:{display:false}}}}});
+
+make('c-costenoche-evol',{type:'line',data:{labels:histYrs,datasets:[
+  {label:'Coste op./noche (sin personal)',data:histCPN,borderColor:'#cf6e6e',backgroundColor:'rgba(207,110,110,0.08)',fill:true,tension:.3,pointRadius:5,pointBackgroundColor:'#cf6e6e'},
+  {label:'ADR',data:histADR,borderColor:'#c8a45a',backgroundColor:'rgba(200,164,90,0.05)',fill:false,tension:.3,pointRadius:5,pointBackgroundColor:'#c8a45a'},
+]},options:{responsive:true,plugins:{legend:{position:'top',labels:{boxWidth:10}},tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${c.raw.toFixed(0)}€`}}},scales:{y:{ticks:{callback:v=>v+'€'}},x:{grid:{display:false}}}}});
+
+function show(id,btn){
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('on'));
+  document.getElementById('pg-'+id).classList.add('on');
+  btn.classList.add('on');
+}
+</script>
+</body>
+</html>
